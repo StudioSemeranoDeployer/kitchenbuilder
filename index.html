@@ -2,47 +2,55 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kitchen Builder - Stable</title>
+    <title>Kitchen Builder - Quote & Textures</title>
     <style>
-        :root { --primary: #2980b9; --dark: #2c3e50; --accent: #e74c3c; }
-        body { margin: 0; overflow: hidden; font-family: sans-serif; background: #1a252f; user-select: none; }
+        /* UI SYSTEM */
+        :root { --primary: #2980b9; --dark: #2c3e50; --light: #ecf0f1; --accent: #e67e22; }
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--dark); user-select: none; }
         
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #1e272e; color: white; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; z-index: 9999; transition: opacity 0.5s;
+            background: #1a252f; color: white; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; z-index: 10000; transition: opacity 0.8s;
         }
-        .spinner { width: 40px; height: 40px; border: 4px solid #fff; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 15px; }
+        .loader-ring { width: 60px; height: 60px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--accent); border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
+        /* PANNELLI */
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
         .panel {
-            pointer-events: auto; background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(4px); border-radius: 8px; padding: 10px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3); margin-bottom: 8px;
-            width: fit-content;
+            pointer-events: auto; background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(8px); border-radius: 8px; padding: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.5);
+            margin-bottom: 10px; transition: transform 0.2s;
         }
 
-        #toolbar { position: absolute; top: 10px; left: 10px; display: flex; flex-direction: column; }
+        #toolbar { position: absolute; top: 20px; left: 20px; display: flex; flex-direction: column; gap: 10px; }
         
-        button {
-            background: var(--dark); color: white; border: none; padding: 8px 12px;
-            border-radius: 4px; font-weight: bold; cursor: pointer; margin: 2px;
-            font-size: 12px; transition: 0.2s;
+        h3 { margin: 0 0 8px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px; color: #7f8c8d; border-bottom: 2px solid #eee; padding-bottom: 5px; }
+        
+        .btn {
+            background: var(--dark); color: white; border: none; padding: 8px 14px;
+            border-radius: 4px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px;
+            font-size: 12px; transition: all 0.2s; box-shadow: 0 2px 5px rgba(0,0,0,0.1);
         }
-        button:hover { background: var(--primary); }
-        button.accent { background: var(--accent); }
+        .btn:hover { background: var(--primary); transform: translateY(-1px); }
+        .btn-accent { background: var(--accent); }
+        .btn-accent:hover { background: #d35400; }
+        .btn-ghost { background: #dfe6e9; color: var(--dark); }
 
-        /* Etichette */
-        .measure-label {
-            position: absolute; background: rgba(0,0,0,0.8); color: white;
-            padding: 2px 6px; border-radius: 4px; font-size: 10px; pointer-events: none;
-            transform: translate(-50%, -100%); margin-top: -10px; white-space: nowrap;
+        /* ETICHETTE QUOTE (Nuovo Stile) */
+        .quote-tag {
+            position: absolute; background: rgba(44, 62, 80, 0.9); color: #fff;
+            padding: 2px 6px; border-radius: 4px; font-size: 10px; font-family: monospace;
+            pointer-events: none; transform: translate(-50%, -100%);
+            white-space: nowrap; z-index: 500; border: 1px solid rgba(255,255,255,0.3);
         }
-        
-        #quote-container { position: absolute; top:0; left:0; width:100%; height:100%; pointer-events:none; overflow:hidden; }
+        .quote-tag::after {
+            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -4px;
+            border-width: 4px; border-style: solid; border-color: rgba(44,62,80,0.9) transparent transparent transparent;
+        }
     </style>
     
     <script type="importmap">
@@ -57,23 +65,31 @@
 <body>
 
     <div id="loader">
-        <div class="spinner"></div>
-        <div>CARICAMENTO OTTIMIZZATO...</div>
+        <div class="loader-ring"></div>
+        <div style="letter-spacing: 2px; font-size: 14px; font-weight: 300;">GENERAZIONE STUDIO...</div>
     </div>
 
     <div id="ui-layer">
         <div id="toolbar">
             <div class="panel">
-                <button onclick="window.app.save()">💾 Salva</button>
-                <button onclick="window.app.load()">📂 Carica</button>
-                <button onclick="window.app.random()">🎲 Random</button>
+                <h3>Progetto</h3>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button class="btn" onclick="window.app.saveProject()">💾 Salva</button>
+                    <button class="btn" onclick="window.app.loadProject()">📂 Carica</button>
+                    <button class="btn btn-ghost" onclick="window.app.generateRandom()">🎲 Random</button>
+                </div>
             </div>
+            
             <div class="panel">
-                <button class="accent" onclick="window.app.photo()">📷 Foto</button>
-                <button id="btn-quote" onclick="window.app.quotes()">📏 Quote: OFF</button>
+                <h3>Vista</h3>
+                <div style="display:flex; gap:5px; flex-wrap:wrap;">
+                    <button class="btn btn-accent" onclick="window.app.takePhoto()">📷 Foto</button>
+                    <button class="btn" id="btn-quotes" onclick="window.app.toggleQuotes()">📏 Quote: OFF</button>
+                </div>
             </div>
         </div>
-        <div id="quote-container"></div>
+        <!-- Container per le etichette delle quote -->
+        <div id="quotes-container"></div>
     </div>
 
     <script type="module">
@@ -81,502 +97,514 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-        // --- SISTEMA CACHE TEXTURE ---
-        const textureCache = {};
-        
-        function getTexture(type, color) {
-            const key = type + '_' + color;
-            if(textureCache[key]) return textureCache[key];
+        // --- GENERATORE TEXTURE ---
+        class TextureManager {
+            constructor() { this.cache = {}; }
 
-            const size = 512; // Risoluzione ridotta per stabilità
-            const cvs = document.createElement('canvas'); 
-            cvs.width = size; cvs.height = size;
-            const ctx = cvs.getContext('2d');
-            
-            ctx.fillStyle = color; 
-            ctx.fillRect(0,0,size,size);
-
-            if(type === 'wood') {
+            getWood(colorHex) {
+                const key = `wood_${colorHex}`;
+                if (this.cache[key]) return this.cache[key];
+                const s = 512; const c = document.createElement('canvas'); c.width=s; c.height=s;
+                const ctx = c.getContext('2d');
+                ctx.fillStyle = colorHex; ctx.fillRect(0,0,s,s);
                 ctx.globalAlpha = 0.1;
-                for(let i=0; i<30; i++) {
-                    ctx.beginPath(); 
-                    ctx.moveTo(0, Math.random()*size);
-                    ctx.bezierCurveTo(size/3, Math.random()*size, size/2, Math.random()*size, size, Math.random()*size);
-                    ctx.stroke();
+                for(let i=0; i<50; i++) {
+                    ctx.beginPath(); ctx.moveTo(0, Math.random()*s);
+                    ctx.bezierCurveTo(s/3, Math.random()*s, s/1.5, Math.random()*s, s, Math.random()*s);
+                    ctx.strokeStyle = '#3e2723'; ctx.lineWidth = Math.random()*3; ctx.stroke();
                 }
-            } else if (type === 'floor') {
-                ctx.globalAlpha = 0.2;
-                if(color === '#d7ccc8') { // Parquet
-                   for(let i=0; i<size; i+=64) {
-                       ctx.strokeRect(0,i,size,64);
-                       ctx.strokeRect(Math.random()*size, i, 2, 64);
-                   }
-                }
+                const t = new THREE.CanvasTexture(c);
+                const m = new THREE.MeshStandardMaterial({ map:t, roughness:0.6, metalness:0.05 });
+                this.cache[key] = m; return m;
             }
 
-            const tex = new THREE.CanvasTexture(cvs);
-            const mat = new THREE.MeshStandardMaterial({ map: tex, roughness: 0.6 });
-            textureCache[key] = mat;
-            return mat;
+            // Generatore Pavimenti
+            getFloor(type) {
+                const key = `floor_${type}`;
+                if (this.cache[key]) return this.cache[key];
+                
+                const s = 1024; const c = document.createElement('canvas'); c.width=s; c.height=s;
+                const ctx = c.getContext('2d');
+                
+                if (type === 'parquet') {
+                    ctx.fillStyle = '#e0c097'; ctx.fillRect(0,0,s,s);
+                    ctx.strokeStyle = '#c6a47e'; ctx.lineWidth = 2;
+                    const w = 64; const h = 256;
+                    for(let y=0; y<s; y+=h) {
+                        for(let x=0; x<s; x+=w) {
+                            const offset = (y/h)%2 === 0 ? 0 : w/2;
+                            ctx.strokeRect(x-offset, y, w, h);
+                            // Dettagli legno
+                            ctx.fillStyle = Math.random()>0.5 ? 'rgba(0,0,0,0.02)' : 'rgba(255,255,255,0.02)';
+                            ctx.fillRect(x-offset+2, y+2, w-4, h-4);
+                        }
+                    }
+                } else if (type === 'tiles') {
+                    ctx.fillStyle = '#eeeeee'; ctx.fillRect(0,0,s,s);
+                    ctx.strokeStyle = '#bdc3c7'; ctx.lineWidth = 4;
+                    const tile = 128;
+                    for(let y=0; y<s; y+=tile) {
+                        for(let x=0; x<s; x+=tile) {
+                            ctx.strokeRect(x, y, tile, tile);
+                        }
+                    }
+                } else {
+                    // Concrete
+                    ctx.fillStyle = '#bdc3c7'; ctx.fillRect(0,0,s,s);
+                    ctx.globalAlpha = 0.05;
+                    for(let i=0; i<10000; i++) {
+                        ctx.fillStyle = Math.random()>0.5 ? '#000' : '#fff';
+                        ctx.fillRect(Math.random()*s, Math.random()*s, 2, 2);
+                    }
+                }
+
+                const t = new THREE.CanvasTexture(c);
+                t.wrapS = THREE.RepeatWrapping; t.wrapT = THREE.RepeatWrapping;
+                t.repeat.set(4, 4); // Ripeti sul pavimento grande
+                const m = new THREE.MeshStandardMaterial({ map:t, roughness: type==='tiles'?0.4:0.9 });
+                this.cache[key] = m; return m;
+            }
+
+            getStone(col) { return this.getWood(col); /* Fallback semplice */ }
         }
 
-        // --- VARIABILI ---
+        // --- GLOBAL ---
         let scene, camera, renderer, controls;
+        let raycaster, mouse;
+        let texManager;
         let cabinets = [];
         let selection = [];
-        let selectionHelpers = [];
-        let quoteLabels = [];
+        let selectionHelpers = []; // Solo per box selezione
+        let quoteElements = []; // Array di oggetti { div, position }
         let floorMesh, wallMesh;
-        let isUpdatingGUI = false; // Flag anti-loop
+        let ambientLight, sunLight;
         let isQuotesMode = false;
 
-        const config = { gridSize: 3000 };
+        const config = { step: 2, fastStep: 10, gridSize: 3000 };
+        
         const props = {
             floorType: 'parquet',
-            wallColor: '#f5f5f5',
+            wallColor: 'wall_white',
+            lightIntensity: 1.0,
             
-            type: 'base', color: 'white',
-            width: 60, height: 85, depth: 60, elevation: 0, isOpen: false,
-            
-            addBase: ()=>spawn('base'), addSink: ()=>spawn('sink'), addCook: ()=>spawn('cooktop'),
-            addTall: ()=>spawn('tall'), addFridge: ()=>spawn('fridge'), addWall: ()=>spawn('wall'),
-            delete: ()=>deleteSel()
+            type: 'base', color: 'white_wood', width: 60, height: 85, depth: 60, elevation: 0, isOpen: false,
+
+            addBase: () => linearSpawn('base'),
+            addSink: () => linearSpawn('sink'),
+            addCook: () => linearSpawn('cooktop'),
+            addTall: () => linearSpawn('tall'),
+            addFridge: () => linearSpawn('fridge'),
+            addWall: () => linearSpawn('wall'),
+            addBoardH: () => linearSpawn('board_h'),
+            addDoor: () => linearSpawn('door'),
+            addWindow: () => linearSpawn('window'),
+            deleteSel: () => deleteSelection()
         };
 
+        const gui = new GUI({ title: 'Configurazione', width: 260 });
         const ctrls = {};
-        const gui = new GUI({ width: 260, title: "Menu" });
 
-        // API Pubbliche
         window.app = {
-            save: () => {
-                const data = cabinets.map(c=>c.params);
-                localStorage.setItem('kitchen_safe_save', JSON.stringify(data));
-                alert("Salvataggio Completato!");
-            },
-            load: () => {
-                const input = document.createElement('input'); input.type='file';
-                input.onchange = e => {
-                    const r = new FileReader();
-                    r.onload = ev => loadData(JSON.parse(ev.target.result));
-                    r.readAsText(e.target.files[0]);
-                };
-                input.click();
-            },
-            random: generateRandom,
-            photo: () => {
-                renderer.render(scene, camera);
-                const a = document.createElement('a'); a.download='kitchen.png';
-                a.href=renderer.domElement.toDataURL(); a.click();
-            },
-            quotes: () => {
-                isQuotesMode = !isQuotesMode;
-                document.getElementById('btn-quote').innerText = isQuotesMode ? "📏 Quote: ON" : "📏 Quote: OFF";
-                updateQuotes();
-            }
+            saveProject: saveToJSON,
+            loadProject: loadFromJSON,
+            generateRandom: generateRandomKitchen,
+            takePhoto: takePhoto,
+            toggleQuotes: toggleQuotesMode
         };
 
         init();
 
         function init() {
-            // SCENE
+            texManager = new TextureManager();
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xdce4eb);
-
-            // CAMERA
+            
+            // CAMERA RAVVICINATA (d=350)
             const aspect = window.innerWidth / window.innerHeight;
-            const d = 350; // Zoom
+            const d = 350; 
             camera = new THREE.OrthographicCamera(-d*aspect, d*aspect, d, -d, 1, 5000);
-            camera.position.set(400, 400, 400);
-            camera.lookAt(0, 50, 0);
+            camera.position.set(400, 400, 400); 
+            camera.lookAt(0,50,0);
 
-            // RENDERER
-            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
             document.body.appendChild(renderer.domElement);
 
-            // LIGHTS
-            const amb = new THREE.AmbientLight(0xffffff, 0.6);
-            scene.add(amb);
-            const sun = new THREE.DirectionalLight(0xffffff, 0.7);
-            sun.position.set(200, 600, 300);
-            sun.castShadow = true;
-            sun.shadow.mapSize.set(1024, 1024);
-            scene.add(sun);
+            ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+            scene.add(ambientLight);
+            sunLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            sunLight.position.set(300, 800, 500);
+            sunLight.castShadow = true;
+            sunLight.shadow.mapSize.set(2048, 2048);
+            scene.add(sunLight);
 
-            // ENV
-            createEnv();
-
-            // CONTROLS
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
+            
+            raycaster = new THREE.Raycaster();
+            mouse = new THREE.Vector2();
 
-            // GUI SETUP
+            createEnv();
             setupGUI();
 
-            // EVENTS
             window.addEventListener('resize', onResize);
-            window.addEventListener('keydown', onKey);
-            renderer.domElement.addEventListener('pointerdown', onClick);
+            window.addEventListener('keydown', onKeyDown);
+            renderer.domElement.addEventListener('pointerdown', onPointerDown);
+            renderer.domElement.addEventListener('dblclick', onDoubleClick);
 
-            // START
-            document.getElementById('loader').style.display = 'none';
-            generateRandom(); // Start with random
+            // Rimuovi loader
+            setTimeout(() => document.getElementById('loader').style.opacity = 0, 600);
+            setTimeout(() => document.getElementById('loader').remove(), 1200);
+
+            // RANDOM START AUTOMATICO
+            generateRandomKitchen();
+            
             animate();
         }
 
-        // --- CORE FUNCTIONS ---
-
         function createEnv() {
-            // Floor
             const fGeo = new THREE.PlaneGeometry(config.gridSize, config.gridSize);
-            const fMat = getTexture('floor', '#d7ccc8');
+            const fMat = texManager.getFloor('parquet'); 
             floorMesh = new THREE.Mesh(fGeo, fMat);
-            floorMesh.rotation.x = -Math.PI/2;
+            floorMesh.rotation.x = -Math.PI/2; floorMesh.position.y = -0.1;
             floorMesh.receiveShadow = true;
             scene.add(floorMesh);
 
-            // Grid
-            const grid = new THREE.GridHelper(config.gridSize, 50, 0xaaaaaa, 0xdddddd);
-            grid.position.y = 0.1;
+            const grid = new THREE.GridHelper(config.gridSize, 60, 0xbdc3c7, 0xffffff);
+            grid.material.opacity = 0.2; grid.material.transparent = true;
             scene.add(grid);
 
-            // Wall
-            const wGeo = new THREE.BoxGeometry(config.gridSize, 400, 10);
-            const wMat = new THREE.MeshStandardMaterial({color:0xf5f5f5});
-            wallMesh = new THREE.Mesh(wGeo, wMat);
-            wallMesh.position.set(0, 200, -100);
+            const wGeo = new THREE.BoxGeometry(config.gridSize, 500, 10);
+            wallMesh = new THREE.Mesh(wGeo, getMaterial('wall_white'));
+            wallMesh.position.set(0, 250, -150);
             wallMesh.receiveShadow = true;
             scene.add(wallMesh);
         }
 
-        function getMat(colorName) {
-            const map = {
-                'white': '#ffffff', 'birch': '#ffe0b2', 'grey': '#90a4ae', 'dark': '#3e2723',
-                'steel': '#b0bec5', 'top': '#212121'
+        function getMaterial(name) {
+            const palettes = { white_wood:'#fcfcfc', oak:'#cba274', walnut:'#5d4037', dark_grey:'#37474f' };
+            if (palettes[name]) return texManager.getWood(palettes[name]);
+            
+            const tech = {
+                wall_white: new THREE.MeshStandardMaterial({ color: 0xf5f5f5 }),
+                wall_grey: new THREE.MeshStandardMaterial({ color: 0xbdc3c7 }),
+                wall_blue: new THREE.MeshStandardMaterial({ color: 0x34495e }),
+                top: new THREE.MeshStandardMaterial({ color: 0x2d3436, roughness: 0.5 }),
+                steel: new THREE.MeshStandardMaterial({ color: 0xbdc3c7, metalness: 0.7, roughness: 0.3 }),
+                black: new THREE.MeshStandardMaterial({ color: 0x111111 }),
+                glass: new THREE.MeshPhysicalMaterial({ color: 0x88ccff, transmission: 0.9, transparent: true, opacity: 0.3 })
             };
-            const hex = map[colorName] || '#ffffff';
-            if(colorName === 'steel' || colorName === 'top') {
-                return new THREE.MeshStandardMaterial({ color: hex, roughness: 0.4 });
-            }
-            return getTexture('wood', hex);
+            return tech[name] || tech.wall_white;
         }
 
-        function spawn(type, xPos=null) {
-            const defs = { base:[85,60], sink:[85,60], cooktop:[85,60], tall:[215,60], fridge:[215,60], wall:[72,35] };
-            const [h, d] = defs[type];
-            const w = 60;
-            const elv = (type === 'wall') ? 145 : 0;
+        // --- SPAWN LOGIC ---
+        function linearSpawn(type, startX = null) {
+            const defs = { 
+                base:[85,0,60], sink:[85,0,60], cooktop:[85,0,60], 
+                tall:[215,0,60], fridge:[215,0,60], wall:[72,145,35],
+                board_h:[4,0,30], door:[210,0,10], window:[120,100,10]
+            };
+            const [h, y, d] = defs[type];
+            let w = (type==='window')?120 : (type==='door'?90 : 60);
             
-            let tx = 0, tz = 0, rot = 0;
-            
-            // Auto-align logic
-            if(xPos === null && cabinets.length > 0) {
-                const last = cabinets[cabinets.length-1].params;
-                const rad = last.rotation * (Math.PI/180);
-                const dist = (last.width/2) + (w/2);
-                tx = last.x + Math.cos(rad)*dist;
-                tz = last.z + Math.sin(rad)*dist;
-                rot = last.rotation;
-            } else if (xPos !== null) {
-                tx = xPos;
+            let tx = 0, tz = 0, trot = 0;
+            let lastColor = props.color;
+
+            if (startX !== null) {
+                tx = startX;
+            } else if (cabinets.length > 0) {
+                const last = cabinets[cabinets.length - 1];
+                const lp = last.params;
+                if(!['window','door'].includes(lp.type)) lastColor = lp.color;
+                trot = lp.rotation;
+                const rad = trot * (Math.PI / 180);
+                const dist = (lp.width/2) + (w/2);
+                tx = lp.x + Math.cos(rad) * dist;
+                tz = lp.z + Math.sin(rad) * dist;
             }
 
             const params = {
-                id: Math.random().toString(36).substr(2,9),
-                type, color: 'white', width: w, height: h, depth: d, elevation: elv, 
-                x: tx, z: tz, rotation: rot, isOpen: false
+                id: crypto.randomUUID(),
+                type, color: lastColor,
+                width: w, height: h, depth: d, elevation: y,
+                rotation: trot, x: tx, z: tz, isOpen: false
             };
-
-            createCabinet(params);
+            createCabinet(params, startX === null); // Seleziona solo se aggiunto manualmente
         }
 
-        function createCabinet(p) {
+        function createCabinet(params, selectIt=false) {
+            const mesh = buildMesh(params);
+            mesh.userData = { isCab: true, id: params.id };
+            scene.add(mesh);
+            const obj = { mesh, params };
+            cabinets.push(obj);
+            if(selectIt) select([obj]);
+            if(isQuotesMode) updateAllQuotes();
+        }
+
+        function buildMesh(p) {
             const group = new THREE.Group();
-            
-            // Geometry Generation
-            const mat = getMat(p.color);
-            const toeH = (p.type==='wall'||p.type==='fridge') ? 0 : 10;
-            const topH = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
-            const bodyH = p.height - toeH - topH;
+            group.position.set(p.x, p.elevation, p.z);
+            group.rotation.y = p.rotation * (Math.PI/180);
 
-            // Box
-            const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, bodyH, p.depth), mat);
-            box.position.y = toeH + bodyH/2;
-            box.castShadow = true;
-            group.add(box);
-
-            // Top
-            if(topH>0) {
-                const top = new THREE.Mesh(new THREE.BoxGeometry(p.width, topH, p.depth+2), getMat('top'));
-                top.position.set(0, toeH+bodyH+topH/2, 1);
-                group.add(top);
+            if(p.type === 'window') {
+                const frameMat = getMaterial(p.color);
+                const fr = 5;
+                const top = new THREE.Mesh(new THREE.BoxGeometry(p.width, fr, p.depth), frameMat); top.position.y = p.height/2-fr/2;
+                const bot = new THREE.Mesh(new THREE.BoxGeometry(p.width, fr, p.depth), frameMat); bot.position.y = -p.height/2+fr/2;
+                const glass = new THREE.Mesh(new THREE.BoxGeometry(p.width-fr, p.height-fr, 2), getMaterial('glass'));
+                const grpW = new THREE.Group();
+                grpW.add(top, bot, glass); grpW.position.y = p.height/2;
+                group.add(grpW);
+                return group;
             }
 
-            // Zoccolo
-            if(toeH>0) {
+            const toeH = (p.type.includes('board') || p.type==='wall' || p.type==='fridge' || p.type==='door') ? 0 : 10;
+            const topH = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
+            const bodyH = p.height - toeH - topH;
+            const mat = getMaterial(p.color);
+
+            // Carcassa
+            const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, bodyH, p.depth), mat);
+            box.position.y = toeH + bodyH/2;
+            box.castShadow = true; box.receiveShadow = true;
+            if(mat.map) mat.map.repeat.set(p.width/100, bodyH/100);
+            group.add(box);
+
+            if (topH > 0) {
+                const top = new THREE.Mesh(new THREE.BoxGeometry(p.width, topH, p.depth+2), getMaterial('top'));
+                top.position.set(0, toeH+bodyH+topH/2, 1);
+                top.castShadow = true;
+                group.add(top);
+            }
+            if (toeH > 0) {
                 const kick = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, toeH, p.depth-5), mat);
-                kick.position.set(0, toeH/2, -2);
+                kick.position.set(0, toeH/2, -2.5);
                 group.add(kick);
             }
 
-            // Door / Detail
+            // Dettagli Specifici
+            if(p.type === 'sink') {
+                const b = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 14, p.depth-15), getMaterial('steel'));
+                b.position.set(0, toeH+bodyH+2, 0); group.add(b);
+            }
             if(p.type === 'fridge') {
-                const d = new THREE.Mesh(new THREE.BoxGeometry(p.width-1, p.height-2, 2), getMat('steel'));
-                d.position.set(0, p.height/2, p.depth/2+1);
-                group.add(d);
-            } else if (p.type !== 'wall_open') {
-                const dGrp = new THREE.Group();
-                dGrp.position.set(0, toeH+bodyH/2, p.depth/2+1);
-                const dw = p.width-1; const dh = bodyH-1;
-                const door = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat);
-                const handle = new THREE.Mesh(new THREE.BoxGeometry(2, 10, 2), getMat('steel'));
-                handle.position.set(dw/2-5, 0, 2);
-                dGrp.add(door, handle);
-                if(p.isOpen) { dGrp.position.x = dw/2; dGrp.rotation.y = -1.5; }
-                group.add(dGrp);
+                const d = new THREE.Mesh(new THREE.BoxGeometry(p.width-1, p.height-2, 4), getMaterial('steel'));
+                d.position.set(0, p.height/2, p.depth/2+2); group.add(d);
             }
-            
-            // Apply Transform
-            group.position.set(p.x, p.elevation, p.z);
-            group.rotation.y = p.rotation * (Math.PI/180);
-            group.userData = { isCab: true, id: p.id };
-
-            scene.add(group);
-            cabinets.push({ mesh: group, params: p });
-            
-            if(isQuotesMode) updateQuotes();
+            // Ante Standard
+            if (!['fridge','board_h','door','window'].includes(p.type)) {
+                const doorGrp = new THREE.Group(); doorGrp.position.set(0, toeH+bodyH/2, p.depth/2+1);
+                const isDbl = p.width >= 70;
+                const dW = isDbl ? (p.width/2)-0.2 : p.width-0.4;
+                const dH = bodyH-0.4;
+                if(isDbl) {
+                    const d1 = makeDoor(dW, dH, mat, -1); d1.position.x = -p.width/4;
+                    const d2 = makeDoor(dW, dH, mat, 1); d2.position.x = p.width/4;
+                    if(p.isOpen) { d1.rotation.y=1.5; d2.rotation.y=-1.5; }
+                    doorGrp.add(d1, d2);
+                } else {
+                    const d1 = makeDoor(dW, dH, mat, 1);
+                    if(p.isOpen) { d1.rotation.y=1.5; d1.position.x += dW/2; }
+                    doorGrp.add(d1);
+                }
+                group.add(doorGrp);
+            }
+            return group;
         }
 
-        // --- MANAGEMENT ---
-
-        function clearScene() {
-            // Garbage collection manuale
-            cabinets.forEach(c => {
-                scene.remove(c.mesh);
-                c.mesh.traverse(o => {
-                    if(o.geometry) o.geometry.dispose();
-                });
-            });
-            cabinets = [];
-            select(null);
-            updateQuotes();
+        function makeDoor(w, h, mat, hDir) {
+            const g = new THREE.Group();
+            const p = new THREE.Mesh(new THREE.BoxGeometry(w, h, 2), mat); g.add(p);
+            const han = new THREE.Mesh(new THREE.BoxGeometry(1, 15, 1), getMaterial('steel'));
+            han.position.set(hDir > 0 ? -w/2+4 : w/2-4, 5, 2); g.add(han);
+            return g;
         }
 
-        function generateRandom() {
-            clearScene();
-            let x = -100;
-            spawn('fridge', x); x+=60;
-            spawn('base'); x+=60;
-            spawn('sink'); x+=60;
-            spawn('cooktop'); x+=60;
-            spawn('tall');
-            
-            // Add walls
-            const bases = cabinets.filter(c=>['base','sink','cooktop'].includes(c.params.type));
-            bases.forEach(b => {
-                const p = b.params;
-                const wp = {...p, id:Math.random(), type:'wall', height:72, depth:35, elevation:145};
-                createCabinet(wp);
-            });
-        }
-
-        function loadData(data) {
-            clearScene();
-            data.forEach(p => createCabinet(p));
-        }
-
-        function deleteSel() {
-            if(selection.length===0) return;
-            selection.forEach(c => {
-                scene.remove(c.mesh);
-                c.mesh.traverse(o => { if(o.geometry) o.geometry.dispose(); });
-                cabinets = cabinets.filter(x => x.params.id !== c.params.id);
-            });
-            select(null);
-            updateQuotes();
-        }
-
-        // --- INTERACTION ---
-
-        function onClick(e) {
+        // --- GESTIONE SELEZIONE ---
+        function onPointerDown(e) {
             const rect = renderer.domElement.getBoundingClientRect();
-            const mouse = new THREE.Vector2(
-                ((e.clientX - rect.left) / rect.width) * 2 - 1,
-                -((e.clientY - rect.top) / rect.height) * 2 + 1
-            );
-            
-            const ray = new THREE.Raycaster();
-            ray.setFromCamera(mouse, camera);
-            const hits = ray.intersectObjects(scene.children, true);
-
+            mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+            mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+            raycaster.setFromCamera(mouse, camera);
+            const hits = raycaster.intersectObjects(scene.children, true);
             let found = null;
-            for(let h of hits) {
-                let p = h.object;
-                while(p) { if(p.userData?.isCab) { found=p; break; } p=p.parent; }
-                if(found) break;
-            }
+            for(let h of hits) { let p=h.object; while(p){ if(p.userData?.isCab){found=p; break;} p=p.parent; } if(found) break; }
 
+            const isShift = e.shiftKey;
             if(found) {
                 const cab = cabinets.find(c => c.params.id === found.userData.id);
-                // Simple toggle selection logic
-                const idx = selection.indexOf(cab);
-                if(e.shiftKey) {
-                    if(idx>=0) select(selection.filter(c=>c!==cab));
-                    else select([...selection, cab]);
-                } else {
-                    select([cab]);
-                }
-            } else if (hits.length===0 || hits[0].object===floorMesh) {
-                if(!e.shiftKey) select(null);
-            }
+                if(isShift) {
+                    const idx = selection.indexOf(cab);
+                    if(idx>=0 && selection.length>1) { const s=[...selection]; s.splice(idx,1); select(s); }
+                    else if(idx<0) select([...selection, cab]);
+                } else { if(!selection.includes(cab)) select([cab]); }
+            } else if(hits.length===0 || hits[0].object===floorMesh) { if(!isShift) select([]); }
         }
 
-        function select(objs) {
-            // Rimuovi helpers vecchi
+        function select(newSel) {
+            selection = newSel;
             selectionHelpers.forEach(h => scene.remove(h));
             selectionHelpers = [];
-            
-            if(!objs || objs.length === 0) {
-                selection = [];
-                return;
-            }
-            selection = objs;
-            
-            selection.forEach(c => {
-                const box = new THREE.BoxHelper(c.mesh, 0xe74c3c);
+
+            selection.forEach(cab => {
+                const box = new THREE.BoxHelper(cab.mesh, 0xe67e22);
                 scene.add(box);
                 selectionHelpers.push(box);
             });
 
-            // Update GUI
-            const p = selection[0].params;
-            isUpdatingGUI = true; // Previeni loop
-            props.type = p.type; props.width = p.width; props.elevation = p.elevation;
-            for(let k in ctrls) ctrls[k].updateDisplay();
-            isUpdatingGUI = false;
+            if(selection.length > 0) {
+                const p = selection[selection.length-1].params;
+                Object.assign(props, { 
+                    type: p.type, color: p.color, width: p.width, height: p.height, 
+                    depth: p.depth, elevation: p.elevation, isOpen: p.isOpen 
+                });
+                for(let k in ctrls) ctrls[k].updateDisplay();
+            }
         }
 
-        function onKey(e) {
+        function updateSelectionVisual() {
+            selection.forEach(c => {
+                scene.remove(c.mesh);
+                c.mesh = buildMesh(c.params);
+                c.mesh.userData = { isCab: true, id: c.params.id };
+                scene.add(c.mesh);
+            });
+            select(selection); 
+            if(isQuotesMode) updateAllQuotes();
+        }
+
+        function deleteSelection() {
+            selection.forEach(c => { scene.remove(c.mesh); cabinets = cabinets.filter(x => x !== c); });
+            select([]);
+            if(isQuotesMode) updateAllQuotes();
+        }
+
+        function onKeyDown(e) {
             if(selection.length === 0) return;
-            let dx=0, dz=0, drot=0;
-            const step = e.shiftKey ? 10 : 2;
+            const step = e.shiftKey ? config.fastStep : config.step;
+            let dx=0, dz=0, dRot=0;
+            if(e.key==='ArrowLeft') dx=-step; if(e.key==='ArrowRight') dx=step;
+            if(e.key==='ArrowUp') dz=-step; if(e.key==='ArrowDown') dz=step;
+            if(e.key.toLowerCase()==='r') dRot=90;
+            if(e.key==='Delete') { deleteSelection(); return; }
 
-            if(e.key==='ArrowLeft') dx=-step;
-            if(e.key==='ArrowRight') dx=step;
-            if(e.key==='ArrowUp') dz=-step;
-            if(e.key==='ArrowDown') dz=step;
-            if(e.key==='r') drot=90;
-            if(e.key==='Delete') { deleteSel(); return; }
-
-            if(dx||dz||drot) {
+            if(dx||dz||dRot) {
                 selection.forEach(c => {
                     c.params.x += dx; c.params.z += dz;
-                    if(drot) c.params.rotation = (c.params.rotation+drot)%360;
-                    
-                    // Update visual
+                    if(dRot) c.params.rotation = (c.params.rotation+dRot)%360;
                     c.mesh.position.set(c.params.x, c.params.elevation, c.params.z);
                     c.mesh.rotation.y = c.params.rotation * (Math.PI/180);
                 });
                 selectionHelpers.forEach(h=>h.update());
-                updateQuotes();
+                if(isQuotesMode) updateAllQuotes();
             }
         }
 
-        // --- QUOTES SYSTEM ---
-        function updateQuotes() {
-            const container = document.getElementById('quote-container');
-            container.innerHTML = '';
-            
-            if(!isQuotesMode) return;
+        function onDoubleClick() { selection.forEach(c => c.params.isOpen = !c.params.isOpen); updateSelectionVisual(); }
 
-            cabinets.forEach(c => {
-                const p = c.params;
+        // --- SISTEMA QUOTE (TUTTI I MODULI) ---
+        function toggleQuotesMode() {
+            isQuotesMode = !isQuotesMode;
+            document.getElementById('btn-quotes').innerText = isQuotesMode ? "📏 Quote: ON" : "📏 Quote: OFF";
+            if(isQuotesMode) updateAllQuotes();
+            else clearQuotes();
+        }
+
+        function clearQuotes() {
+            const container = document.getElementById('quotes-container');
+            container.innerHTML = '';
+            quoteElements = [];
+        }
+
+        function updateAllQuotes() {
+            if(!isQuotesMode) return;
+            const container = document.getElementById('quotes-container');
+            
+            // Crea elementi se non esistono
+            if (quoteElements.length !== cabinets.length) {
+                clearQuotes();
+                cabinets.forEach(cab => {
+                    const div = document.createElement('div');
+                    div.className = 'quote-tag';
+                    div.innerText = `${cab.params.width}x${cab.params.height}`;
+                    container.appendChild(div);
+                    quoteElements.push({ div, cab });
+                });
+            }
+
+            // Aggiorna posizione
+            quoteElements.forEach(item => {
+                const p = item.cab.params;
+                // Proietta posizione sopra il mobile
                 const vec = new THREE.Vector3(p.x, p.elevation + p.height + 10, p.z);
                 vec.project(camera);
-
-                // Check se visibile
-                if(vec.z > 1 || vec.z < -1) return;
-
+                
                 const x = (vec.x * .5 + .5) * window.innerWidth;
                 const y = (-(vec.y * .5) + .5) * window.innerHeight;
 
-                const div = document.createElement('div');
-                div.className = 'measure-label';
-                div.innerText = `${p.width}x${p.height}`;
-                div.style.left = x + 'px';
-                div.style.top = y + 'px';
-                container.appendChild(div);
+                // Nascondi se dietro la camera
+                if (vec.z > 1) {
+                    item.div.style.opacity = 0;
+                } else {
+                    item.div.style.left = x + 'px';
+                    item.div.style.top = y + 'px';
+                    item.div.innerText = `${p.width}x${p.height}x${p.depth}`;
+                    item.div.style.opacity = 1;
+                }
             });
         }
 
-        // --- GUI ---
+        // --- RANDOM GENERATOR ---
+        function generateRandomKitchen() {
+            // Clear
+            cabinets.forEach(c => scene.remove(c.mesh)); cabinets = []; select([]);
+            
+            let x = -120;
+            // 1. Frigo
+            const frigo = { id: crypto.randomUUID(), type: 'fridge', color: 'white_wood', width: 60, height: 215, depth: 60, elevation: 0, rotation: 0, x: x, z: 0, isOpen: false };
+            createCabinet(frigo); x += 60;
+
+            // 2. Basi
+            const types = ['base', 'sink', 'cooktop', 'base'];
+            const modules = [];
+            for(let t of types) {
+                const p = { id: crypto.randomUUID(), type: t, color: 'white_wood', width: 60, height: 85, depth: 60, elevation: 0, rotation: 0, x: x, z: 0, isOpen: false };
+                createCabinet(p); modules.push(p); x += 60;
+            }
+            // 3. Pensili
+            modules.forEach(m => {
+                const wp = { ...m, id: crypto.randomUUID(), type: 'wall', height: 72, depth: 35, elevation: 145 };
+                createCabinet(wp);
+            });
+
+            // Centra e Reset Camera
+            controls.target.set(0, 100, 0); controls.update();
+        }
+
+        function saveToJSON() { const data = cabinets.map(c=>c.params); const b=new Blob([JSON.stringify(data)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='cucina.json'; a.click(); }
+        function loadFromJSON() { const i=document.createElement('input'); i.type='file'; i.onchange=e=>{ const r=new FileReader(); r.onload=ev=>loadData(JSON.parse(ev.target.result)); r.readAsText(e.target.files[0]); }; i.click(); }
+        function loadData(data) { cabinets.forEach(c=>scene.remove(c.mesh)); cabinets=[]; select([]); data.forEach(p=>createCabinet(p)); }
+        function takePhoto() { renderer.render(scene, camera); const a=document.createElement('a'); a.download='render.png'; a.href=renderer.domElement.toDataURL('image/png'); a.click(); }
+
         function setupGUI() {
-            const apply = () => {
-                if(isUpdatingGUI) return;
-                // Ricrea moduli selezionati con nuovi parametri
-                const savedSel = selection.map(c=>c.params.id);
-                selection.forEach(c => {
-                    Object.assign(c.params, {
-                        type: props.type, color: props.color,
-                        width: props.width, height: props.height, elevation: props.elevation
-                    });
-                    
-                    scene.remove(c.mesh);
-                    c.mesh = createCabinet(c.params, false).mesh; // Questo crea duplicato nell'array? No, fix sotto
-                });
-                
-                // Fix: createCabinet pusha in array. Dobbiamo gestire aggiornamento in-place
-                // Semplificazione per stabilità: In questa versione light, l'edit live ricrea l'oggetto
-                // ma per evitare complessità, l'aggiornamento visuale completo è omesso qui per brevità
-                // in favore della stabilità.
-            };
+            const apply = () => { selection.forEach(c => Object.assign(c.params, props)); updateSelectionVisual(); };
+            const fEnv = gui.addFolder('🏠 Ambiente');
+            fEnv.add(props, 'floorType', ['parquet','tiles','concrete']).name('Pavimento').onChange(v => floorMesh.material = texManager.getFloor(v));
+            fEnv.add(props, 'showWall').onChange(v=>wallMesh.visible=v);
+            fEnv.add(props, 'wallColor', ['wall_white','wall_grey','wall_blue']).onChange(v=>wallMesh.material=getMaterial(v));
+            fEnv.add(props, 'lightIntensity', 0, 2).onChange(v=>sunLight.intensity=v);
 
-            const f1 = gui.addFolder('Aggiungi');
-            f1.add(props, 'addBase'); f1.add(props, 'addSink'); f1.add(props, 'addTall');
-            f1.add(props, 'addFridge'); f1.add(props, 'addWall');
-            
-            const f2 = gui.addFolder('Modifica');
-            ctrls.type = f2.add(props, 'type', ['base','sink','cooktop','tall','fridge','wall']);
-            ctrls.w = f2.add(props, 'width', 15, 120, 5);
-            ctrls.h = f2.add(props, 'height', 15, 250, 5);
-            ctrls.e = f2.add(props, 'elevation', 0, 250, 5);
-            f2.add(props, 'delete');
-            
-            // Apply logic semplificata per evitare crash
-            f2.onChange( () => {
-                selection.forEach(c => {
-                    c.params.width = props.width;
-                    c.params.height = props.height;
-                    c.params.elevation = props.elevation;
-                    // Rimuovi e ricrea
-                    scene.remove(c.mesh);
-                    // Pulizia array interno fatta da createCabinet? No.
-                    // Metodo rapido update visuale:
-                    const grp = c.mesh; 
-                    grp.position.y = props.elevation;
-                    // Nota: Cambiare width/height richiede ricreare geometry. 
-                    // Per stabilità in questo snippet, aggiorno solo posizione.
-                });
-                selectionHelpers.forEach(h=>h.update());
-                updateQuotes();
-            });
-        }
+            const fAdd = gui.addFolder('➕ Moduli');
+            fAdd.add(props, 'addBase'); fAdd.add(props, 'addSink'); fAdd.add(props, 'addCook');
+            fAdd.add(props, 'addTall'); fAdd.add(props, 'addFridge'); fAdd.add(props, 'addWall');
+            fAdd.add(props, 'addDoor'); fAdd.add(props, 'addWindow');
 
-        function onResize() {
-            const asp = window.innerWidth/window.innerHeight; const d = 350;
-            camera.left = -d*asp; camera.right = d*asp; camera.top = d; camera.bottom = -d;
-            camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
-            updateQuotes();
-        }
-
-        function animate() {
-            requestAnimationFrame(animate);
-            controls.update();
-            renderer.render(scene, camera);
-            if(isQuotesMode) updateQuotes();
-        }
-
-    </script>
-</body>
-</html>
+            const fEdit = gui.addFolder('🔧 Modifica');
+            ctrls.type = fEdit.add(props, 'type', ['base','sink','cooktop','tall','fridge','wall','door','window']).onChange(apply);
+            ctrls.color = fEdit.add(props, 'color', ['white_wood','oak','walnut','dark_grey']).onChange(apply);
+            ctrls.w = fEdit.add(props, 'width', 1, 300, 1).onChange(apply);
+            ctrls.h = fEdit.add(props, 'height', 1, 300, 1).onChange(apply);
+            ctrls.d = fEdit.a
