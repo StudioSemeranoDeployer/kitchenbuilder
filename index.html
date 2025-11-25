@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Kitchen Builder - Rotation & Colors</title>
+    <title>Kitchen Builder - Stable Fix</title>
     <style>
         body { margin: 0; overflow: hidden; font-family: 'Segoe UI', sans-serif; background: #2c3e50; }
         
@@ -25,11 +25,7 @@
 
         h3 { margin: 0 0 5px 0; color: #333; }
         p { margin: 0; font-size: 13px; color: #666; }
-        
-        .key {
-            display: inline-block; background: #eee; border: 1px solid #ccc;
-            border-radius: 4px; padding: 2px 6px; font-size: 11px; font-weight: bold;
-        }
+        .key { display: inline-block; background: #eee; border: 1px solid #ccc; border-radius: 4px; padding: 2px 6px; font-weight: bold; font-size: 11px; }
 
         #btn-photo {
             position: absolute; top: 20px; right: 20px;
@@ -39,7 +35,7 @@
         }
         #btn-photo:hover { background: #d35400; }
     </style>
-    <!-- Importazione Three.js -->
+    
     <script type="importmap">
         {
             "imports": {
@@ -51,13 +47,13 @@
 </head>
 <body>
 
-    <div id="loader">Caricamento...</div>
+    <div id="loader">Caricamento in corso...</div>
 
     <div id="ui-container">
         <div class="panel">
             <h3>Comandi</h3>
-            <p><span class="key">⬆⬇⬅➡</span> Sposta</p>
-            <p><span class="key">R</span> Ruota di 90°</p>
+            <p><span class="key">Frecce</span> Sposta</p>
+            <p><span class="key">R</span> Ruota</p>
             <p><span class="key">Canc</span> Elimina</p>
         </div>
         <div class="panel">
@@ -72,7 +68,7 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-        // --- VARIABILI GLOBALI ---
+        // --- VARIABILI ---
         let scene, camera, renderer, controls;
         let raycaster, mouse;
         let cabinets = [];
@@ -80,51 +76,36 @@
         let selectionBox;
         let floorMesh;
         
-        // --- CONFIGURAZIONE ---
-        const config = {
-            step: 2,
-            fastStep: 10,
-            gridSize: 2000,
-            showFloor: true
-        };
-
-        // --- LIBRERIA MATERIALI ---
+        // Materiali condivisi
         const matLib = {
-            birch: new THREE.MeshStandardMaterial({ color: 0xF5DEB3, roughness: 0.5, name: 'birch' }), // Betulla
-            white: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.3, name: 'white' }), // Bianco
-            walnut: new THREE.MeshStandardMaterial({ color: 0x5D4037, roughness: 0.6, name: 'walnut' }), // Noce
-            
-            // Materiali tecnici fissi
+            birch: new THREE.MeshStandardMaterial({ color: 0xF5DEB3, roughness: 0.5, name: 'birch' }),
+            white: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.3, name: 'white' }),
+            walnut: new THREE.MeshStandardMaterial({ color: 0x5D4037, roughness: 0.6, name: 'walnut' }),
             top: new THREE.MeshStandardMaterial({ color: 0x333333, roughness: 0.4 }),
-            steel: new THREE.MeshStandardMaterial({ color: 0xbdc3c7, metalness: 0.8, roughness: 0.2 }),
-            black: new THREE.MeshStandardMaterial({ color: 0x111111, roughness: 0.8 }),
+            steel: new THREE.MeshStandardMaterial({ color: 0xbdc3c7, metalness: 0.8 }),
+            black: new THREE.MeshStandardMaterial({ color: 0x111111 }),
             kick: new THREE.MeshStandardMaterial({ color: 0x1a1a1a }),
             fire: new THREE.MeshBasicMaterial({ color: 0xe74c3c })
         };
 
-        // --- PARAMETRI GUI ---
-        const props = {
-            // Stato Globale
-            floorVisible: true,
-            
-            // Stato Modulo Selezionato
-            type: 'base', 
-            color: 'birch',
-            width: 60, height: 85, depth: 60, elevation: 0, 
-            rotation: 0, // Gradi
-            x: 0, z: 0, 
-            isOpen: false,
+        const config = { step: 2, fastStep: 10, gridSize: 2000 };
 
+        // Stato GUI
+        const props = {
+            floorVisible: true,
+            type: 'base', color: 'birch',
+            width: 60, height: 85, depth: 60, elevation: 0, 
+            rotation: 0, x: 0, z: 0, isOpen: false,
             // Azioni
             addBase: () => spawn('base'),
             addSink: () => spawn('sink'),
             addCook: () => spawn('cooktop'),
             addTall: () => spawn('tall'),
             addWall: () => spawn('wall'),
-            delete: () => removeSelected()
+            del: () => removeSelected()
         };
 
-        const gui = new GUI({ title: 'Configuratore', width: 280 });
+        const gui = new GUI({ title: 'Menu', width: 280 });
         gui.domElement.style.top = "10px";
         const ctrls = {};
 
@@ -132,63 +113,52 @@
 
         function init() {
             try {
-                // 1. Scene
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xdcdcdc);
 
-                // 2. Camera Isometrica
                 const aspect = window.innerWidth / window.innerHeight;
                 const d = 600;
-                camera = new THREE.OrthographicCamera(-d * aspect, d * aspect, d, -d, 1, 5000);
+                camera = new THREE.OrthographicCamera(-d*aspect, d*aspect, d, -d, 1, 5000);
                 camera.position.set(500, 500, 500); 
-                camera.lookAt(0, 0, 0);
+                camera.lookAt(0,0,0);
 
-                // 3. Renderer
                 renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.shadowMap.enabled = true;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 document.body.appendChild(renderer.domElement);
 
-                // 4. Luci
-                const ambi = new THREE.AmbientLight(0xffffff, 0.6);
-                scene.add(ambi);
+                // Luci
+                scene.add(new THREE.AmbientLight(0xffffff, 0.6));
                 const sun = new THREE.DirectionalLight(0xffffff, 0.7);
                 sun.position.set(300, 800, 500);
                 sun.castShadow = true;
                 sun.shadow.mapSize.set(2048, 2048);
                 scene.add(sun);
 
-                // 5. Pavimento e Griglia
-                // Griglia
-                const grid = new THREE.GridHelper(config.gridSize, 100, 0x999999, 0xbbbbbb);
-                scene.add(grid);
-                
-                // Pavimento Neutro (Layer opzionale)
-                const floorGeo = new THREE.PlaneGeometry(config.gridSize, config.gridSize);
-                const floorMat = new THREE.MeshStandardMaterial({ color: 0xeeeeee, roughness: 1 });
-                floorMesh = new THREE.Mesh(floorGeo, floorMat);
+                // Pavimento
+                scene.add(new THREE.GridHelper(config.gridSize, 100, 0x999999, 0xbbbbbb));
+                floorMesh = new THREE.Mesh(
+                    new THREE.PlaneGeometry(config.gridSize, config.gridSize),
+                    new THREE.MeshStandardMaterial({ color: 0xeeeeee })
+                );
                 floorMesh.rotation.x = -Math.PI / 2;
-                floorMesh.position.y = -0.5; // Appena sotto la griglia
+                floorMesh.position.y = -0.5;
                 floorMesh.receiveShadow = true;
                 scene.add(floorMesh);
 
-                // 6. Helpers
                 controls = new OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
                 
                 raycaster = new THREE.Raycaster();
                 mouse = new THREE.Vector2();
                 
-                // Box selezione
                 selectionBox = new THREE.BoxHelper(new THREE.Mesh(), 0xff3300);
                 selectionBox.visible = false;
                 scene.add(selectionBox);
 
-                // GUI Init
                 setupGUI();
 
-                // Events
                 window.addEventListener('resize', onResize);
                 window.addEventListener('keydown', onKeyDown);
                 renderer.domElement.addEventListener('pointerdown', onClick);
@@ -196,96 +166,83 @@
 
                 document.getElementById('loader').style.display = 'none';
 
-                // Esempio iniziale
+                // Moduli iniziali
                 spawn('base', 0, 0, 'birch');
-                spawn('sink', 60, 0, 'white');
-                
+                spawn('wall', 0, 0, 'white');
+
                 animate();
             } catch (e) {
-                alert("Errore avvio: " + e.message);
+                alert("Errore Critico: " + e.message);
             }
         }
 
-        // --- SISTEMA GENERAZIONE ---
+        // --- GENERATORE GEOMETRIA ---
 
-        function createCabinetGeometry(p) {
+        function createCabinetGroup(p) {
             const group = new THREE.Group();
             
+            // Imposta altezza corpo
             let toeH = (p.type === 'wall') ? 0 : 10;
-            let topH = (p.type === 'base' || p.type === 'sink' || p.type === 'cooktop') ? 4 : 0;
+            let topH = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
             let bodyH = p.height - toeH - topH;
             
-            // Materiale corpo scelto
-            const bodyMat = matLib[p.color] || matLib.birch;
+            const mat = matLib[p.color] || matLib.birch;
 
-            // 1. CORPO PRINCIPALE
-            const boxGeo = new THREE.BoxGeometry(p.width, bodyH, p.depth);
-            const box = new THREE.Mesh(boxGeo, bodyMat);
+            // 1. Corpo
+            const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, bodyH, p.depth), mat);
             box.position.y = toeH + bodyH / 2;
             box.castShadow = true; box.receiveShadow = true;
             group.add(box);
 
-            // 2. TOP E ACCESSORI
+            // 2. Top
             if (topH > 0) {
-                // Top standard base
-                const topGeo = new THREE.BoxGeometry(p.width, topH, p.depth + 2);
-                const top = new THREE.Mesh(topGeo, matLib.top);
+                const top = new THREE.Mesh(new THREE.BoxGeometry(p.width, topH, p.depth+2), matLib.top);
                 top.position.set(0, toeH + bodyH + topH/2, 1);
                 top.castShadow = true;
                 group.add(top);
 
                 if (p.type === 'sink') {
-                    // Vasca
-                    const basin = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 12, p.depth-20), matLib.steel);
-                    basin.position.set(0, toeH + bodyH + 5, 1);
+                    const basin = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 12, p.depth-15), matLib.steel);
+                    basin.position.set(0, toeH + bodyH + 2, 1);
                     group.add(basin);
-                    // Rubinetto
-                    const tap = new THREE.Mesh(new THREE.CylinderGeometry(1,1,12), matLib.steel);
+                    const tap = new THREE.Mesh(new THREE.CylinderGeometry(1,1,15), matLib.steel);
                     tap.position.set(0, toeH + bodyH + 10, -10);
                     group.add(tap);
-                } 
-                else if (p.type === 'cooktop') {
-                    // Piastra
-                    const plate = new THREE.Mesh(new THREE.BoxGeometry(p.width-10, 1, p.depth-15), matLib.black);
+                }
+                if (p.type === 'cooktop') {
+                    const plate = new THREE.Mesh(new THREE.BoxGeometry(p.width-10, 1, p.depth-10), matLib.black);
                     plate.position.set(0, toeH + bodyH + topH + 0.5, 1);
                     group.add(plate);
-                    // Fuochi (visuali)
-                    const fire = new THREE.Mesh(new THREE.CylinderGeometry(2,2,0.5), matLib.fire);
-                    fire.position.set(10, toeH + bodyH + topH + 1, 5);
-                    group.add(fire);
+                    group.add(new THREE.Mesh(new THREE.CylinderGeometry(2,2,0.5), matLib.fire).translateX(10).translateY(toeH+bodyH+topH+1));
                 }
             }
 
-            // 3. ANTE
-            const doorGroup = new THREE.Group();
-            const doorThick = 2;
-            // Unica anta o doppia in base alla larghezza
+            // 3. Ante
+            const doorGrp = new THREE.Group();
             const isDouble = p.width >= 60;
-            const doorW = isDouble ? (p.width/2)-0.2 : p.width-0.4;
-            const doorH = bodyH - 0.4;
+            const dW = isDouble ? (p.width/2)-0.2 : p.width-0.4;
+            const dH = bodyH - 0.4;
 
             if(isDouble) {
-                const d1 = makeDoor(doorW, doorH, doorThick, bodyMat, 'left');
+                const d1 = makeDoor(dW, dH, mat, -1); 
                 d1.position.set(-p.width/4, 0, 0);
-                const d2 = makeDoor(doorW, doorH, doorThick, bodyMat, 'right');
+                const d2 = makeDoor(dW, dH, mat, 1);
                 d2.position.set(p.width/4, 0, 0);
-                
                 if(p.isOpen) {
-                    d1.rotation.y = Math.PI/2.2; d1.position.z += 5;
-                    d2.rotation.y = -Math.PI/2.2; d2.position.z += 5;
+                    d1.rotation.y = Math.PI/2.5; d1.position.z+=5;
+                    d2.rotation.y = -Math.PI/2.5; d2.position.z+=5;
                 }
-                doorGroup.add(d1, d2);
+                doorGrp.add(d1, d2);
             } else {
-                const d1 = makeDoor(doorW, doorH, doorThick, bodyMat, 'left');
-                if(p.isOpen) { d1.rotation.y = Math.PI/2.2; d1.position.z += 5; d1.position.x += doorW/2; }
-                doorGroup.add(d1);
+                const d1 = makeDoor(dW, dH, mat, 1);
+                if(p.isOpen) { d1.rotation.y = Math.PI/2.5; d1.position.z+=5; d1.position.x += dW/2; }
+                doorGrp.add(d1);
             }
+            doorGrp.position.set(0, toeH + bodyH/2, p.depth/2 + 1);
+            group.add(doorGrp);
 
-            doorGroup.position.set(0, toeH + bodyH/2, p.depth/2 + doorThick/2);
-            group.add(doorGroup);
-
-            // 4. ZOCCOLO
-            if(toeH > 0) {
+            // 4. Zoccolo
+            if(toeH>0) {
                 const kick = new THREE.Mesh(new THREE.BoxGeometry(p.width, toeH, p.depth-5), matLib.kick);
                 kick.position.set(0, toeH/2, -2.5);
                 group.add(kick);
@@ -294,92 +251,98 @@
             return group;
         }
 
-        function makeDoor(w, h, d, material, handleSide) {
-            const grp = new THREE.Group();
-            const panel = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
-            grp.add(panel);
-            // Maniglia
+        function makeDoor(w, h, mat, handleDir) {
+            const g = new THREE.Group();
+            g.add(new THREE.Mesh(new THREE.BoxGeometry(w, h, 2), mat));
             const han = new THREE.Mesh(new THREE.BoxGeometry(1.5, 10, 1.5), matLib.steel);
-            const offset = (handleSide === 'left') ? w/2 - 5 : -w/2 + 5;
-            han.position.set(offset, 5, d);
-            grp.add(han);
-            return grp;
+            han.position.set((handleDir>0 ? -w/2+5 : w/2-5), 5, 2);
+            g.add(han);
+            return g;
         }
 
-        // --- SPAWN & UPDATE ---
+        // --- GESTIONE OGGETTI ---
 
-        function spawn(type, x=null, z=null, color='birch') {
-            const defaults = {
-                base: {h:85, d:60, y:0}, sink: {h:85, d:60, y:0}, cooktop: {h:85, d:60, y:0},
-                tall: {h:210, d:60, y:0}, wall: {h:72, d:35, y:145}
-            };
-            const def = defaults[type];
+        function spawn(type, x=null, z=null, col='birch') {
+            const defs = { base:[85,0], sink:[85,0], cooktop:[85,0], tall:[210,0], wall:[72,145] };
             
-            // Random pos se null
             if(x===null) x = (Math.random()*100)-50;
             if(z===null) z = (Math.random()*100)-50;
 
             const params = {
-                id: Math.random().toString(36).substr(2, 9),
-                type: type, color: color,
-                width: 60, height: def.h, depth: def.d, elevation: def.y,
-                rotation: 0,
-                x: x, z: z,
-                isOpen: false
+                id: 'id_'+Math.random().toString(36).substr(2,9),
+                type: type, color: col,
+                width: 60, height: defs[type][0], depth: (type==='wall'?35:60), elevation: defs[type][1],
+                rotation: 0, x: x, z: z, isOpen: false
             };
-            renderCabinet(params);
+
+            updateCabinetMesh(params, true);
         }
 
-        function renderCabinet(params, isUpdate=false) {
-            if(isUpdate) {
+        function updateCabinetMesh(params, isNew = false) {
+            // Rimuovi vecchio se esiste
+            if (!isNew) {
                 const old = cabinets.find(c => c.params.id === params.id);
-                if(old) {
+                if (old) {
                     scene.remove(old.mesh);
                     cabinets = cabinets.filter(c => c.params.id !== params.id);
                 }
             }
 
-            const mesh = createCabinetGeometry(params);
+            // Crea nuova mesh
+            const mesh = createCabinetGroup(params);
             
-            // Posizionamento e Rotazione
+            // Posiziona
             mesh.position.set(params.x, params.elevation, params.z);
-            mesh.rotation.y = params.rotation * (Math.PI / 180); // Converte gradi in radianti
-
-            // Metadata
+            mesh.rotation.y = params.rotation * (Math.PI / 180);
+            
+            // Metadata fondamentali per il raycasting
             mesh.userData = { isCab: true, id: params.id };
-            // Propaghiamo userdata ai figli per il raycasting
-            mesh.traverse(obj => { obj.userData = { isCab: true, id: params.id } });
-
+            
             scene.add(mesh);
-            const obj = { mesh, params };
-            cabinets.push(obj);
-
+            
+            const newObj = { mesh, params };
+            cabinets.push(newObj);
             document.getElementById('stats').innerText = "Elementi: " + cabinets.length;
 
-            if(isUpdate || !selectedCabinet) select(obj);
-            else if(selectedCabinet && selectedCabinet.params.id === params.id) select(obj);
+            // Se stiamo aggiornando un oggetto già selezionato, aggiorniamo il riferimento
+            if (selectedCabinet && selectedCabinet.params.id === params.id) {
+                selectedCabinet = newObj;
+                selectionBox.setFromObject(mesh);
+            } 
+            // Se è nuovo, lo selezioniamo
+            else if (isNew) {
+                select(newObj);
+            }
         }
 
-        // --- INTERAZIONE ---
+        // --- SELEZIONE SICURA (FIX LOOP) ---
 
         function select(obj) {
             selectedCabinet = obj;
+            
             if(!obj) {
                 selectionBox.visible = false;
                 return;
             }
-            
+
             selectionBox.setFromObject(obj.mesh);
             selectionBox.visible = true;
 
-            // Sync UI
-            ctrls.type.setValue(obj.params.type);
-            ctrls.color.setValue(obj.params.color);
-            ctrls.w.setValue(obj.params.width);
-            ctrls.h.setValue(obj.params.height);
-            ctrls.elv.setValue(obj.params.elevation);
-            ctrls.rot.setValue(obj.params.rotation);
-            ctrls.opn.setValue(obj.params.isOpen);
+            // Aggiorniamo la GUI ma SENZA scatenare eventi onChange
+            // lil-gui 'listen()' rileva le modifiche a 'props', ma qui le forziamo manualmente
+            // per essere sicuri che i valori visualizzati siano corretti.
+            const p = obj.params;
+            
+            // Copiamo i valori nell'oggetto props collegato alla GUI
+            Object.assign(props, {
+                type: p.type, color: p.color,
+                width: p.width, height: p.height, depth: p.depth,
+                elevation: p.elevation, rotation: p.rotation,
+                x: p.x, z: p.z, isOpen: p.isOpen
+            });
+
+            // Aggiorniamo solo il display visuale dei controller
+            for (let k in ctrls) ctrls[k].updateDisplay();
         }
 
         function removeSelected() {
@@ -387,40 +350,42 @@
             scene.remove(selectedCabinet.mesh);
             cabinets = cabinets.filter(c => c !== selectedCabinet);
             select(null);
+            document.getElementById('stats').innerText = "Elementi: " + cabinets.length;
         }
 
         // --- INPUT ---
 
         function onKeyDown(e) {
             if (!selectedCabinet) {
-                // Scorciatoie globali
-                if(e.key === 'Delete') removeSelected();
+                if(e.key==='Delete') removeSelected();
                 return;
             }
             
             const step = e.shiftKey ? config.fastStep : config.step;
-            let dirty = false;
+            let changed = false;
             let p = selectedCabinet.params;
 
-            // Movimento
-            if(e.key==='ArrowLeft') { p.x -= step; dirty=true; }
-            if(e.key==='ArrowRight') { p.x += step; dirty=true; }
-            if(e.key==='ArrowUp') { p.z -= step; dirty=true; }
-            if(e.key==='ArrowDown') { p.z += step; dirty=true; }
-
-            // Rotazione Rapida
-            if(e.key === 'r' || e.key === 'R') {
+            if(e.key==='ArrowLeft') { p.x -= step; changed=true; }
+            if(e.key==='ArrowRight') { p.x += step; changed=true; }
+            if(e.key==='ArrowUp') { p.z -= step; changed=true; }
+            if(e.key==='ArrowDown') { p.z += step; changed=true; }
+            
+            if(e.key==='r' || e.key==='R') {
                 p.rotation = (p.rotation + 90) % 360;
-                dirty = true;
-                ctrls.rot.setValue(p.rotation);
+                changed=true;
             }
             
-            if(e.key === 'Delete') { removeSelected(); dirty=false; }
+            if(e.key==='Delete') { removeSelected(); changed=false; }
 
-            if(dirty) {
+            if(changed) {
+                // Aggiorniamo direttaemnte la mesh per fluidità
                 selectedCabinet.mesh.position.set(p.x, p.elevation, p.z);
                 selectedCabinet.mesh.rotation.y = p.rotation * (Math.PI/180);
                 selectionBox.update();
+                
+                // Aggiorniamo i valori GUI props e display
+                props.x = p.x; props.z = p.z; props.rotation = p.rotation;
+                ctrls.x.updateDisplay(); ctrls.z.updateDisplay(); ctrls.rot.updateDisplay();
             }
         }
 
@@ -432,12 +397,24 @@
             raycaster.setFromCamera(mouse, camera);
             const hits = raycaster.intersectObjects(scene.children, true);
 
-            // Trova il primo oggetto che è un mobile (ignorando box selezione e grid)
-            const hit = hits.find(h => h.object.userData.isCab);
-            
-            if(hit) {
-                const found = cabinets.find(c => c.params.id === hit.object.userData.id);
-                select(found);
+            // Trova il parent con isCab
+            let found = null;
+            for(let hit of hits) {
+                let obj = hit.object;
+                // Risaliamo la gerarchia fino a trovare il gruppo con userData.isCab
+                while(obj) {
+                    if(obj.userData && obj.userData.isCab) {
+                        found = obj;
+                        break;
+                    }
+                    obj = obj.parent;
+                }
+                if(found) break;
+            }
+
+            if(found) {
+                const cab = cabinets.find(c => c.params.id === found.userData.id);
+                select(cab);
             } else if (hits.length === 0 || hits[0].object === floorMesh || hits[0].object.type === 'GridHelper') {
                 select(null);
             }
@@ -446,68 +423,58 @@
         // --- GUI ---
 
         function setupGUI() {
-            // Folder Ambiente
             const fEnv = gui.addFolder('Ambiente');
-            fEnv.add(props, 'floorVisible').name('Mostra Pavimento').onChange(v => floorMesh.visible = v);
+            fEnv.add(props, 'floorVisible').name('Pavimento').onChange(v => floorMesh.visible = v);
 
-            // Folder Aggiungi
-            const fAdd = gui.addFolder('Aggiungi Moduli');
-            fAdd.add(props, 'addBase').name('➕ Base');
-            fAdd.add(props, 'addSink').name('➕ Lavandino');
-            fAdd.add(props, 'addCook').name('➕ Piano Cottura');
-            fAdd.add(props, 'addTall').name('➕ Armadio');
-            fAdd.add(props, 'addWall').name('➕ Pensile');
+            const fAdd = gui.addFolder('Aggiungi');
+            fAdd.add(props, 'addBase').name('+ Base');
+            fAdd.add(props, 'addSink').name('+ Lavandino');
+            fAdd.add(props, 'addCook').name('+ Cottura');
+            fAdd.add(props, 'addTall').name('+ Armadio');
+            fAdd.add(props, 'addWall').name('+ Pensile');
 
-            // Folder Modifica
-            const fEdit = gui.addFolder('Modifica Selezionato');
+            const fEdit = gui.addFolder('Modifica');
             
-            ctrls.type = fEdit.add(props, 'type', ['base','sink','cooktop','tall','wall']).name('Tipo').onChange(() => refreshSel());
-            ctrls.color = fEdit.add(props, 'color', ['birch', 'white', 'walnut']).name('Colore').onChange(() => refreshSel());
-            
-            ctrls.w = fEdit.add(props, 'width', 20, 120, 5).name('Larghezza').onChange(v => updateParam('width', v));
-            ctrls.h = fEdit.add(props, 'height', 20, 250, 5).name('Altezza').onChange(v => updateParam('height', v));
-            
-            ctrls.rot = fEdit.add(props, 'rotation', 0, 360, 5).name('Rotazione (°)').onChange(v => {
+            // Usiamo wrapper function per evitare loop
+            const apply = () => {
                 if(selectedCabinet) {
-                    selectedCabinet.params.rotation = v;
-                    selectedCabinet.mesh.rotation.y = v * (Math.PI/180);
-                    selectionBox.update();
+                    // Aggiorna params da props
+                    Object.assign(selectedCabinet.params, {
+                        type: props.type, color: props.color,
+                        width: props.width, height: props.height, depth: props.depth,
+                        elevation: props.elevation, rotation: props.rotation,
+                        isOpen: props.isOpen
+                    });
+                    updateCabinetMesh(selectedCabinet.params);
                 }
-            });
+            };
 
-            ctrls.elv = fEdit.add(props, 'elevation', 0, 250, 5).name('Elevazione Y').onChange(v => {
-                if(selectedCabinet) {
-                    selectedCabinet.params.elevation = v;
-                    selectedCabinet.mesh.position.y = v;
-                    selectionBox.update();
-                }
-            });
-
-            ctrls.opn = fEdit.add(props, 'isOpen').name('Ante Aperte').onChange(v => updateParam('isOpen', v));
-            fEdit.add(props, 'delete').name('🗑 ELIMINA');
+            ctrls.type = fEdit.add(props, 'type', ['base','sink','cooktop','tall','wall']).onChange(apply);
+            ctrls.color = fEdit.add(props, 'color', ['birch','white','walnut']).onChange(apply);
+            ctrls.w = fEdit.add(props, 'width', 20, 120, 5).onChange(apply);
+            ctrls.h = fEdit.add(props, 'height', 20, 250, 5).onChange(apply);
+            ctrls.rot = fEdit.add(props, 'rotation', 0, 360, 5).onChange(apply);
+            ctrls.elv = fEdit.add(props, 'elevation', 0, 250, 5).onChange(apply);
             
+            // Coordinate solo visualizzazione (aggiornate via tastiera o qui)
+            ctrls.x = fEdit.add(props, 'x').listen().onChange(v => {
+                if(selectedCabinet) { selectedCabinet.params.x = v; apply(); }
+            });
+            ctrls.z = fEdit.add(props, 'z').listen().onChange(v => {
+                if(selectedCabinet) { selectedCabinet.params.z = v; apply(); }
+            });
+            
+            ctrls.opn = fEdit.add(props, 'isOpen').name('Ante Aperte').onChange(apply);
+            fEdit.add(props, 'del').name('🗑 Elimina');
+
             fAdd.open();
             fEdit.open();
-        }
-
-        function updateParam(key, val) {
-            if(!selectedCabinet) return;
-            selectedCabinet.params[key] = val;
-            renderCabinet(selectedCabinet.params, true);
-        }
-
-        function refreshSel() {
-            if(selectedCabinet) {
-                selectedCabinet.params.type = props.type;
-                selectedCabinet.params.color = props.color;
-                renderCabinet(selectedCabinet.params, true);
-            }
         }
 
         function takePhoto() {
             render();
             const a = document.createElement('a');
-            a.download = 'render_cucina.png';
+            a.download = 'cucina.png';
             a.href = renderer.domElement.toDataURL('image/png');
             a.click();
         }
