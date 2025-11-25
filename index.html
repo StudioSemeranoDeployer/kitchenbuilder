@@ -2,63 +2,53 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Smart Kitchen Architect</title>
+    <title>Kitchen Builder - Linear & MultiSelect</title>
     <style>
-        /* UI MODERNA & ELEGANTE */
-        body { margin: 0; overflow: hidden; font-family: 'Inter', 'Segoe UI', sans-serif; background: #2c3e50; }
+        /* UI STYLES */
+        body { margin: 0; overflow: hidden; font-family: 'Inter', sans-serif; background: #2c3e50; user-select: none; }
         
         #loader {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(135deg, #2c3e50, #4ca1af); 
-            color: white; display: flex; flex-direction: column;
+            background: #34495e; color: white; display: flex; flex-direction: column;
             justify-content: center; align-items: center; z-index: 9999;
-            transition: opacity 0.6s ease-out;
+            transition: opacity 0.5s;
         }
-        .spinner { width: 50px; height: 50px; border: 4px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s infinite linear; margin-bottom: 20px; }
+        .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.2); border-top-color: #fff; border-radius: 50%; animation: spin 0.8s infinite linear; margin-bottom: 15px; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
-        /* PANNELLI FLOATING */
         #ui-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; }
         
         .panel {
-            pointer-events: auto; background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(10px); border-radius: 12px; padding: 15px;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.15); border: 1px solid rgba(255,255,255,0.5);
-            transition: transform 0.2s;
+            pointer-events: auto; background: rgba(255, 255, 255, 0.95);
+            border-radius: 8px; padding: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            margin-bottom: 10px;
         }
 
-        #controls-panel { position: absolute; top: 20px; left: 20px; width: 220px; }
-        #price-panel { position: absolute; bottom: 20px; right: 20px; width: 200px; text-align: right; }
+        #controls-info { position: absolute; top: 15px; left: 15px; width: 200px; }
         
-        h3 { margin: 0 0 10px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
-        p { margin: 5px 0; font-size: 13px; color: #333; display: flex; align-items: center; }
-        
-        .kbd { background: #eee; border: 1px solid #ccc; border-radius: 4px; padding: 2px 6px; font-size: 10px; font-weight: bold; margin-right: 8px; color: #555; box-shadow: 0 2px 0 #ccc; }
+        h3 { margin: 0 0 8px 0; font-size: 13px; text-transform: uppercase; color: #555; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+        p { margin: 4px 0; font-size: 12px; color: #333; display: flex; align-items: center; }
+        .kbd { background: #eee; border: 1px solid #ccc; border-radius: 3px; padding: 1px 5px; font-weight: bold; margin-right: 6px; font-size: 10px; }
 
-        .price-tag { font-size: 24px; font-weight: 800; color: #27ae60; margin: 0; }
-        .price-label { font-size: 12px; color: #7f8c8d; text-transform: uppercase; }
-
-        /* BUTTONS */
         #btn-photo {
-            position: absolute; top: 20px; right: 20px; pointer-events: auto;
-            background: #e67e22; color: white; border: none; padding: 10px 20px;
-            border-radius: 30px; font-weight: bold; cursor: pointer;
-            box-shadow: 0 4px 15px rgba(230, 126, 34, 0.4);
-            transition: all 0.2s;
+            position: absolute; top: 15px; right: 15px; pointer-events: auto;
+            background: #27ae60; color: white; border: none; padding: 8px 16px;
+            border-radius: 4px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        #btn-photo:hover { transform: scale(1.05); background: #d35400; }
+        #btn-photo:hover { background: #2ecc71; }
 
-        /* FLOATING LABEL (QUOTE) */
+        /* Etichetta misure */
         #measure-label {
-            position: absolute; background: #2c3e50; color: white;
-            padding: 4px 8px; border-radius: 4px; font-size: 12px;
-            pointer-events: none; opacity: 0; transition: opacity 0.2s;
-            transform: translate(-50%, -100%); margin-top: -10px;
-            white-space: nowrap; z-index: 1000;
+            position: absolute; background: #2c3e50; color: #fff;
+            padding: 4px 8px; border-radius: 4px; font-size: 11px;
+            pointer-events: none; opacity: 0; transform: translate(-50%, -100%); margin-top: -15px;
+            transition: opacity 0.2s; white-space: nowrap; font-weight: bold;
         }
         #measure-label::after {
-            content: ''; position: absolute; top: 100%; left: 50%; margin-left: -5px;
-            border-width: 5px; border-style: solid; border-color: #2c3e50 transparent transparent transparent;
+            content:''; position: absolute; top: 100%; left: 50%; margin-left: -4px;
+            border-width: 4px; border-style: solid; border-color: #2c3e50 transparent transparent transparent;
         }
     </style>
     
@@ -75,231 +65,205 @@
 
     <div id="loader">
         <div class="spinner"></div>
-        <div style="font-weight: 300; letter-spacing: 2px;">LOADING STUDIO</div>
+        <div style="font-size: 12px; letter-spacing: 1px;">CARICAMENTO STUDIO</div>
     </div>
 
     <div id="ui-layer">
-        <div id="controls-panel" class="panel">
-            <h3>Comandi Smart</h3>
-            <p><span class="kbd">Doppio Click</span> Apri Anta</p>
-            <p><span class="kbd">R</span> Ruota 90°</p>
-            <p><span class="kbd">Shift+Arr</span> Muovi Veloce</p>
+        <div id="controls-info" class="panel">
+            <h3>Comandi</h3>
+            <p><span class="kbd">Shift+Click</span> Selezione Multipla</p>
+            <p><span class="kbd">Frecce</span> Sposta Selezionati</p>
+            <p><span class="kbd">R</span> Ruota Selezionati</p>
             <p><span class="kbd">Canc</span> Elimina</p>
         </div>
-
-        <div id="price-panel" class="panel">
-            <div class="price-label">Stima Progetto</div>
-            <div id="total-price" class="price-tag">€ 0</div>
-            <div style="font-size: 11px; color: #999; margin-top: 5px;">*Prezzi indicativi</div>
-        </div>
-        
-        <div id="measure-label">60x85x60</div>
+        <div id="measure-label">60x85</div>
     </div>
 
-    <button id="btn-photo">📷 Scatta Foto</button>
+    <button id="btn-photo">📷 FOTO</button>
 
     <script type="module">
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-        // --- VARIABILI CORE ---
+        // --- VARIABILI GLOBALI ---
         let scene, camera, renderer, controls;
         let raycaster, mouse;
-        let cabinets = [];
-        let selectedCabinet = null;
-        let selectionBox;
-        let floorMesh, wallMesh;
         
-        // --- CONFIG & STATO ---
+        // Logica Selezione
+        let cabinets = [];
+        let selection = []; // Array per selezione multipla
+        let selectionHelpers = []; // Array di visualizzatori (box arancioni)
+        
+        let floorMesh, wallMesh;
+
+        // Configurazione Base
         const config = { step: 2, fastStep: 10, gridSize: 3000 };
+        
+        // Stato GUI
         const props = {
             // Ambiente
             showFloor: true,
+            showWall: true,
             wallColor: 'wall_white',
             
-            // Modulo
-            type: 'base', color: 'birch',
-            width: 60, height: 85, depth: 60, elevation: 0,
-            rotation: 0, isOpen: false,
+            // Parametri Nuovo Modulo / Modifica
+            type: 'base', 
+            color: 'birch',
+            width: 60, height: 85, depth: 60, elevation: 0, 
+            isOpen: false,
+
+            // Azioni Rapide
+            addBase: () => linearSpawn('base'),
+            addSink: () => linearSpawn('sink'),
+            addCook: () => linearSpawn('cooktop'),
+            addTall: () => linearSpawn('tall'),
+            addFridge: () => linearSpawn('fridge'),
+            addWall: () => linearSpawn('wall'),
             
-            // Azioni
-            addBase: () => smartSpawn('base'),
-            addSink: () => smartSpawn('sink'),
-            addCook: () => smartSpawn('cooktop'),
-            addCorner: () => smartSpawn('corner'), // NEW
-            addFridge: () => smartSpawn('fridge'), // NEW
-            addTall: () => smartSpawn('tall'),
-            addWall: () => smartSpawn('wall'),
-            
-            resetView: () => { controls.reset(); camera.position.set(500, 600, 500); camera.lookAt(0,0,0); },
-            del: () => removeSelected()
+            // Tools
+            resetView: () => { controls.reset(); camera.position.set(500, 500, 500); },
+            deleteSel: () => deleteSelection()
         };
 
-        // --- LIBRERIA MATERIALI ---
+        // --- MATERIALI ---
         const matLib = {
             birch: new THREE.MeshStandardMaterial({ color: 0xFADFB7, roughness: 0.6, name: 'Betulla' }),
-            white_wood: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, name: 'Bianco Puro' }),
-            walnut: new THREE.MeshStandardMaterial({ color: 0x5D4037, roughness: 0.7, name: 'Noce Scuro' }),
-            grey_matte: new THREE.MeshStandardMaterial({ color: 0x7f8c8d, roughness: 0.9, name: 'Grigio Opaco' }),
-            navy: new THREE.MeshStandardMaterial({ color: 0x34495e, roughness: 0.5, name: 'Blu Notte' }),
+            white: new THREE.MeshStandardMaterial({ color: 0xFFFFFF, roughness: 0.4, name: 'Bianco Assoluto' }),
+            wood_dark: new THREE.MeshStandardMaterial({ color: 0x5D4037, roughness: 0.7, name: 'Legno Scuro' }),
+            grey: new THREE.MeshStandardMaterial({ color: 0x95a5a6, roughness: 0.5, name: 'Grigio Moderno' }),
             
-            // Muri
-            wall_white: new THREE.MeshStandardMaterial({ color: 0xf5f6fa }),
-            wall_sage: new THREE.MeshStandardMaterial({ color: 0xa8e6cf }),
-            wall_stone: new THREE.MeshStandardMaterial({ color: 0x95a5a6 }),
+            // Ambiente
+            wall_white: new THREE.MeshStandardMaterial({ color: 0xf5f5f5 }),
+            wall_grey: new THREE.MeshStandardMaterial({ color: 0xbdc3c7 }),
+            wall_blue: new THREE.MeshStandardMaterial({ color: 0x34495e }),
 
             // Tecnici
-            top: new THREE.MeshStandardMaterial({ color: 0x2d3436, roughness: 0.6 }),
+            top: new THREE.MeshStandardMaterial({ color: 0x2d3436, roughness: 0.5 }),
             steel: new THREE.MeshStandardMaterial({ color: 0xbdc3c7, metalness: 0.6, roughness: 0.2 }),
-            black: new THREE.MeshStandardMaterial({ color: 0x111111 }),
-            kick: new THREE.MeshStandardMaterial({ color: 0x2c3e50 }) // Zoccolo scuro standard
+            kick: new THREE.MeshStandardMaterial({ color: 0xFADFB7 }), // Zoccolo default (cambierà dinamicamente)
+            black: new THREE.MeshStandardMaterial({ color: 0x111111 })
         };
 
-        // Prezzi base per logica "Smart"
-        const prices = { base: 150, sink: 250, cooktop: 300, tall: 400, wall: 100, corner: 350, fridge: 600 };
-
         // GUI
-        const gui = new GUI({ title: 'Configuratore', width: 280 });
+        const gui = new GUI({ title: 'Progettazione', width: 260 });
         const ctrls = {};
 
         init();
 
         function init() {
             try {
-                // 1. SCENA
+                // 1. Scene
                 scene = new THREE.Scene();
                 scene.background = new THREE.Color(0xdce4eb);
-                scene.fog = new THREE.Fog(0xdce4eb, 900, 3000);
 
-                // 2. CAMERA ISO
+                // 2. Camera (Ortho per precisione)
                 const aspect = window.innerWidth / window.innerHeight;
                 const d = 600;
                 camera = new THREE.OrthographicCamera(-d*aspect, d*aspect, d, -d, 1, 5000);
-                camera.position.set(500, 600, 500); 
+                camera.position.set(500, 500, 500); 
                 camera.lookAt(0,0,0);
 
-                // 3. RENDERER
+                // 3. Renderer
                 renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true, alpha: true });
                 renderer.setSize(window.innerWidth, window.innerHeight);
                 renderer.shadowMap.enabled = true;
                 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
                 document.body.appendChild(renderer.domElement);
 
-                // 4. LUCI
-                const hemiLight = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.6);
-                scene.add(hemiLight);
+                // 4. Luci
+                const ambi = new THREE.AmbientLight(0xffffff, 0.65);
+                scene.add(ambi);
+                const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+                sun.position.set(300, 800, 500);
+                sun.castShadow = true;
+                sun.shadow.mapSize.set(2048, 2048);
+                scene.add(sun);
 
-                const dirLight = new THREE.DirectionalLight(0xffffff, 0.7);
-                dirLight.position.set(400, 800, 600);
-                dirLight.castShadow = true;
-                dirLight.shadow.mapSize.set(2048, 2048);
-                scene.add(dirLight);
-
-                // 5. AMBIENTE
-                createEnvironment();
-
-                // 6. HELPERS
+                // 5. Helpers
                 controls = new OrbitControls(camera, renderer.domElement);
                 controls.enableDamping = true;
                 
                 raycaster = new THREE.Raycaster();
                 mouse = new THREE.Vector2();
-                
-                // Box selezione
-                selectionBox = new THREE.BoxHelper(new THREE.Mesh(), 0xe67e22);
-                selectionBox.visible = false;
-                scene.add(selectionBox);
 
+                // 6. Ambiente
+                createEnv();
+
+                // 7. GUI Setup
                 setupGUI();
 
-                // 7. EVENTI
+                // 8. Eventi
                 window.addEventListener('resize', onResize);
                 window.addEventListener('keydown', onKeyDown);
                 renderer.domElement.addEventListener('pointerdown', onPointerDown);
-                renderer.domElement.addEventListener('dblclick', onDoubleClick); // Smart Feature
+                renderer.domElement.addEventListener('dblclick', onDoubleClick);
                 document.getElementById('btn-photo').addEventListener('click', takePhoto);
 
-                // Rimuovi loader
-                const l = document.getElementById('loader');
-                l.style.opacity = 0;
-                setTimeout(() => l.remove(), 600);
-
-                // Init
-                smartSpawn('base');
+                // Start
+                document.getElementById('loader').style.opacity = 0;
+                setTimeout(()=>document.getElementById('loader').remove(), 500);
+                
+                // Spawn primo modulo
+                linearSpawn('base');
 
                 animate();
-            } catch (e) {
-                alert("Errore Inizializzazione: " + e.message);
-            }
+
+            } catch (e) { console.error(e); alert("Errore WebGL"); }
         }
 
-        function createEnvironment() {
+        function createEnv() {
             // Pavimento
-            const floorGeo = new THREE.PlaneGeometry(config.gridSize, config.gridSize);
-            const floorMat = new THREE.MeshStandardMaterial({ color: 0xe0e0e0, roughness: 0.8 });
-            floorMesh = new THREE.Mesh(floorGeo, floorMat);
-            floorMesh.rotation.x = -Math.PI / 2;
-            floorMesh.position.y = -0.5;
+            const fGeo = new THREE.PlaneGeometry(config.gridSize, config.gridSize);
+            const fMat = new THREE.MeshStandardMaterial({ color: 0xeaeaea, roughness: 0.8 });
+            floorMesh = new THREE.Mesh(fGeo, fMat);
+            floorMesh.rotation.x = -Math.PI/2;
+            floorMesh.position.y = -0.1;
             floorMesh.receiveShadow = true;
             scene.add(floorMesh);
 
-            // Griglia
             const grid = new THREE.GridHelper(config.gridSize, 60, 0xbdc3c7, 0xffffff);
-            grid.material.transparent = true;
-            grid.material.opacity = 0.3;
+            grid.material.opacity = 0.4; grid.material.transparent = true;
             scene.add(grid);
 
-            // Muro
-            const wallGeo = new THREE.BoxGeometry(config.gridSize, 400, 10);
-            wallMesh = new THREE.Mesh(wallGeo, matLib.wall_white);
-            wallMesh.position.set(0, 200, -150);
+            // Muro Posteriore (Opzionale)
+            const wGeo = new THREE.BoxGeometry(config.gridSize, 400, 10);
+            wallMesh = new THREE.Mesh(wGeo, matLib.wall_white);
+            wallMesh.position.set(0, 200, -100); // Dietro l'origine
             wallMesh.receiveShadow = true;
             scene.add(wallMesh);
         }
 
-        // --- SMART SPAWN LOGIC ---
-        function smartSpawn(type) {
+        // --- SPAWN LINEARE (Fix Richiesto) ---
+        function linearSpawn(type) {
+            // Standard Misure (Profondità fissa a 60 per terra, 35 per pensili)
             const defs = { 
                 base:[85,0,60], sink:[85,0,60], cooktop:[85,0,60], 
-                tall:[215,0,60], wall:[72,145,35], corner:[85,0,90], fridge:[215,0,60] 
+                tall:[215,0,60], fridge:[215,0,60], wall:[72,145,35] 
             };
             
             const [h, y, d] = defs[type];
-            const w = (type === 'corner') ? 90 : 60; 
+            const w = 60; // Larghezza standard iniziale
 
             let tx = 0, tz = 0, trot = 0;
             let lastColor = 'birch';
 
-            if(cabinets.length > 0) {
-                // Prendi ultimo cabinet
-                const last = selectedCabinet || cabinets[cabinets.length - 1];
+            // Logica: Trova l'ultimo mobile inserito e mettiti "in fila"
+            if (cabinets.length > 0) {
+                // Prendi l'ultimo
+                const last = cabinets[cabinets.length - 1];
                 const lp = last.params;
                 lastColor = lp.color;
+                
+                // Manteniamo lo stesso asse di rotazione dell'ultimo mobile
+                trot = lp.rotation; 
+                const rad = trot * (Math.PI / 180);
 
-                const rad = lp.rotation * (Math.PI/180);
+                // Calcolo offset: (metà del precedente + metà del nuovo) lungo l'asse corrente
+                const dist = (lp.width / 2) + (w / 2);
                 
-                // Distanza da percorrere: Metà del precedente + Metà del nuovo
-                let dist = (lp.width/2) + (w/2);
-                
-                // Se il precedente era un angolo, la logica cambia
-                if (lp.type === 'corner') {
-                    // Se l'angolo è 90x90, l'uscita è ruotata di 90 gradi rispetto all'ingresso
-                    // Per semplicità: se aggiungo dopo un angolo, ruoto di 90 gradi e mi sposto
-                    trot = lp.rotation - 90; // Ruota a DX
-                    dist = (lp.width/2) + (w/2) - 30; // Aggiustamento offset angolo
-                    
-                    // Calcolo nuova posizione "uscendo" dall'angolo
-                    const radNew = trot * (Math.PI/180);
-                    tx = lp.x + Math.cos(rad) * 30 + Math.cos(radNew) * (w/2);
-                    tz = lp.z + Math.sin(rad) * 30 + Math.sin(radNew) * (w/2);
-                    
-                } else {
-                    // Lineare
-                    trot = lp.rotation;
-                    tx = lp.x + Math.cos(rad) * dist;
-                    tz = lp.z + Math.sin(rad) * dist;
-                }
+                tx = lp.x + Math.cos(rad) * dist;
+                tz = lp.z + Math.sin(rad) * dist;
             }
 
             const params = {
@@ -308,334 +272,349 @@
                 width: w, height: h, depth: d, elevation: y,
                 rotation: trot, x: tx, z: tz, isOpen: false
             };
-            updateCabinet(params, true);
+            
+            createCabinet(params, true);
         }
 
-        // --- GENERATORE GEOMETRIE (GARBAGE COLLECTED) ---
-        function createCabinetMesh(p) {
+        // --- GENERAZIONE 3D ---
+        function createCabinetGroup(p) {
             const group = new THREE.Group();
-            const toeH = (p.type === 'wall' || p.type === 'fridge') ? 0 : 10;
-            const topH = (['base','sink','cooktop','corner'].includes(p.type)) ? 4 : 0;
+            
+            // Calcoli altezza corpo
+            const toeH = (p.type === 'wall') ? 0 : 10;
+            const topH = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
             const bodyH = p.height - toeH - topH;
-            const mat = (p.type === 'fridge') ? matLib.steel : (matLib[p.color] || matLib.birch);
+            
+            const mainMat = (p.type==='fridge') ? matLib.steel : (matLib[p.color] || matLib.birch);
 
-            // 1. CARCASSA
-            if (p.type === 'corner') {
-                // Forma a L (2 box uniti)
-                const size = p.width; // 90x90
-                const thick = 60; // Profondità standard
-                
-                // Parte principale
-                const b1 = new THREE.Mesh(new THREE.BoxGeometry(size, bodyH, thick), mat);
-                b1.position.set(0, toeH+bodyH/2, (size-thick)/2);
-                
-                // Parte laterale (L)
-                const b2 = new THREE.Mesh(new THREE.BoxGeometry(size-thick, bodyH, thick), mat);
-                b2.position.set(-(thick)/2 - (size-thick)/2, toeH+bodyH/2, -(thick)/2);
-                b2.rotation.y = Math.PI/2;
-                
-                b1.castShadow = true; b2.castShadow = true;
-                group.add(b1, b2);
-                
-                // Top Angolo
-                const t1 = new THREE.Mesh(new THREE.BoxGeometry(size, topH, thick+2), matLib.top);
-                t1.position.set(0, toeH+bodyH+topH/2, (size-thick)/2 + 1);
-                
-                const t2 = new THREE.Mesh(new THREE.BoxGeometry(size-thick-2, topH, thick+2), matLib.top);
-                t2.position.set(-(thick)/2 - (size-thick)/2 + 1, toeH+bodyH+topH/2, -(thick)/2 + 1);
-                t2.rotation.y = Math.PI/2;
-                group.add(t1, t2);
+            // 1. Carcassa
+            const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, bodyH, p.depth), mainMat);
+            box.position.y = toeH + bodyH/2;
+            box.castShadow = true; box.receiveShadow = true;
+            group.add(box);
 
-            } else {
-                // BOX STANDARD
-                const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, bodyH, p.depth), mat);
-                box.position.y = toeH + bodyH/2;
-                box.castShadow = true;
-                group.add(box);
+            // 2. Top
+            if (topH > 0) {
+                const top = new THREE.Mesh(new THREE.BoxGeometry(p.width, topH, p.depth+2), matLib.top);
+                top.position.set(0, toeH+bodyH+topH/2, 1);
+                top.castShadow = true;
+                group.add(top);
+            }
 
-                // TOP
-                if (topH > 0) {
-                    const top = new THREE.Mesh(new THREE.BoxGeometry(p.width, topH, p.depth+2), matLib.top);
-                    top.position.set(0, toeH+bodyH+topH/2, 1);
-                    top.castShadow = true;
-                    group.add(top);
+            // 3. Zoccolo (Stesso colore del modulo per eleganza)
+            if (toeH > 0) {
+                const kick = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, toeH, p.depth-5), mainMat);
+                kick.position.set(0, toeH/2, -2.5);
+                group.add(kick);
+            }
+
+            // 4. Ante
+            if (p.type !== 'fridge') { // Frigo ha porta diversa
+                const doorGrp = new THREE.Group();
+                doorGrp.position.set(0, toeH+bodyH/2, p.depth/2 + 1);
+                
+                const isDouble = p.width >= 70; // Solo moduli larghi hanno doppia anta
+                const dW = isDouble ? (p.width/2)-0.2 : p.width-0.4;
+                const dH = bodyH-0.4;
+
+                if(isDouble) {
+                    const d1 = makeDoor(dW, dH, mainMat, -1); d1.position.x = -p.width/4;
+                    const d2 = makeDoor(dW, dH, mainMat, 1); d2.position.x = p.width/4;
+                    if(p.isOpen) { d1.rotation.y = 1.5; d2.rotation.y = -1.5; }
+                    doorGrp.add(d1, d2);
+                } else {
+                    const d1 = makeDoor(dW, dH, mainMat, 1);
+                    if(p.isOpen) { d1.rotation.y = 1.5; d1.position.x += dW/2; }
+                    doorGrp.add(d1);
                 }
+                group.add(doorGrp);
             }
 
-            // 2. DETTAGLI SPECIALI
-            if(p.type === 'sink') {
-                const basin = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 15, p.depth-15), matLib.steel);
+            // 5. Accessori
+            if(p.type==='sink') {
+                const basin = new THREE.Mesh(new THREE.BoxGeometry(p.width-10, 15, p.depth-15), matLib.steel);
                 basin.position.set(0, toeH+bodyH+2, 1);
-                const inner = new THREE.Mesh(new THREE.BoxGeometry(p.width-17, 15.2, p.depth-17), matLib.black);
-                inner.position.set(0, toeH+bodyH+2.1, 1);
-                const tap = new THREE.Mesh(new THREE.CylinderGeometry(1,1.5,20), matLib.steel);
-                tap.position.set(0, toeH+bodyH+10, -15);
-                tap.rotation.x = 0.2;
-                group.add(basin, inner, tap);
+                const tap = new THREE.Mesh(new THREE.CylinderGeometry(1,1,15), matLib.steel);
+                tap.position.set(0, toeH+bodyH+10, -10);
+                group.add(basin, tap);
             }
-            else if(p.type === 'cooktop') {
-                const plate = new THREE.Mesh(new THREE.BoxGeometry(p.width-10, 1, p.depth-10), matLib.black);
+            if(p.type==='cooktop') {
+                const plate = new THREE.Mesh(new THREE.BoxGeometry(p.width-12, 1, p.depth-12), matLib.black);
                 plate.position.set(0, toeH+bodyH+topH+0.5, 1);
                 group.add(plate);
-                const fire = new THREE.Mesh(new THREE.CylinderGeometry(3,3,1), matLib.fire);
-                fire.position.set(0, toeH+bodyH+topH+1, 0);
-                group.add(fire);
-            }
-            else if(p.type === 'fridge') {
-                // Divisoria porte frigo
-                const divY = bodyH * 0.4; // Freezer in basso
-                // Maniglie
-                const h1 = new THREE.Mesh(new THREE.BoxGeometry(2, 30, 2), matLib.black);
-                h1.position.set(p.width/2 - 5, toeH + bodyH/2 + 20, p.depth/2 + 2);
-                group.add(h1);
-            }
-
-            // 3. ANTE
-            if (p.type !== 'corner' && p.type !== 'fridge') {
-                const isDouble = p.width >= 60;
-                const dW = isDouble ? (p.width/2)-0.2 : p.width-0.4;
-                const dH = bodyH - 0.4;
-                const dThick = 2;
-                
-                const dGrp = new THREE.Group();
-                dGrp.position.set(0, toeH+bodyH/2, p.depth/2 + dThick/2);
-
-                if (isDouble) {
-                    const d1 = makeDoor(dW, dH, mat, -1); d1.position.x = -p.width/4;
-                    const d2 = makeDoor(dW, dH, mat, 1); d2.position.x = p.width/4;
-                    if(p.isOpen) { d1.rotation.y = 1.5; d2.rotation.y = -1.5; }
-                    dGrp.add(d1, d2);
-                } else {
-                    const d1 = makeDoor(dW, dH, mat, 1);
-                    if(p.isOpen) { d1.rotation.y = 1.5; d1.position.x += dW/2; }
-                    dGrp.add(d1);
-                }
-                group.add(dGrp);
-            }
-            
-            // Anta Angolo (Semplificata: una diagonale o due fisse)
-            if (p.type === 'corner') {
-                const d = makeDoor(40, bodyH-0.4, mat, 1);
-                d.position.set(10, toeH+bodyH/2, 60/2 + 1); // Posizione approssimata lato
-                if(p.isOpen) d.rotation.y = 1.5;
-                group.add(d);
-            }
-
-            // 4. ZOCCOLO
-            if (toeH > 0) {
-                const kick = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, toeH, p.depth-5), matLib.kick);
-                kick.position.set(0, toeH/2, -3);
-                group.add(kick);
             }
 
             return group;
         }
 
-        function makeDoor(w, h, mat, handleDir) {
+        function makeDoor(w, h, mat, hDir) {
             const g = new THREE.Group();
             const p = new THREE.Mesh(new THREE.BoxGeometry(w, h, 2), mat);
-            p.castShadow = true;
             g.add(p);
-            // Maniglia
-            const han = new THREE.Mesh(new THREE.BoxGeometry(1, 15, 1), matLib.black);
-            han.position.set((handleDir>0 ? -w/2+4 : w/2-4), 5, 2);
+            const han = new THREE.Mesh(new THREE.BoxGeometry(1, 10, 1.5), matLib.steel);
+            han.position.set(hDir > 0 ? -w/2+4 : w/2-4, 0, 2);
             g.add(han);
             return g;
         }
 
-        // --- UPDATE & CLEANUP ---
-        function updateCabinet(params, isNew = false) {
-            if (!isNew) {
-                const old = cabinets.find(c => c.params.id === params.id);
-                if (old) {
-                    scene.remove(old.mesh);
-                    // Garbage Collection manuale per pulizia memoria
-                    old.mesh.traverse(o => {
-                        if(o.geometry) o.geometry.dispose();
-                        // Non facciamo dispose dei materiali perché sono condivisi (matLib)
-                    });
-                    cabinets = cabinets.filter(c => c.params.id !== params.id);
-                }
-            }
-
-            const mesh = createCabinetMesh(params);
+        // --- GESTIONE OGGETTI ---
+        function createCabinet(params, selectIt=false) {
+            const mesh = createCabinetGroup(params);
+            
+            // Applicazione posizione
             mesh.position.set(params.x, params.elevation, params.z);
-            mesh.rotation.y = params.rotation * (Math.PI / 180);
+            mesh.rotation.y = params.rotation * (Math.PI/180);
+            
+            // Metadata per raycasting
             mesh.userData = { isCab: true, id: params.id };
-
+            
             scene.add(mesh);
             const obj = { mesh, params };
             cabinets.push(obj);
 
-            calculateTotal();
-            if (isNew || (selectedCabinet && selectedCabinet.params.id === params.id)) select(obj);
+            if(selectIt) select([obj]); // Seleziona il nuovo
         }
 
-        // --- INTERAZIONE ---
+        function updateCabinetVisual(cab) {
+            scene.remove(cab.mesh);
+            // Ricrea
+            const newMesh = createCabinetGroup(cab.params);
+            newMesh.position.set(cab.params.x, cab.params.elevation, cab.params.z);
+            newMesh.rotation.y = cab.params.rotation * (Math.PI/180);
+            newMesh.userData = { isCab: true, id: cab.params.id };
+            scene.add(newMesh);
+            cab.mesh = newMesh;
+        }
+
+        // --- SISTEMA DI SELEZIONE AVANZATO ---
         function onPointerDown(e) {
             const rect = renderer.domElement.getBoundingClientRect();
             mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
             mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
-            
+
             raycaster.setFromCamera(mouse, camera);
             const hits = raycaster.intersectObjects(scene.children, true);
-            
+
+            // Trova cabinet
             let found = null;
             for(let h of hits) {
                 let p = h.object;
-                while(p) { if(p.userData?.isCab) { found=p; break; } p = p.parent; }
+                while(p) { if(p.userData?.isCab) { found=p; break; } p=p.parent; }
                 if(found) break;
             }
 
-            if(found) select(cabinets.find(c => c.params.id === found.userData.id));
-            else if(hits.length===0 || hits[0].object === floorMesh) select(null);
-        }
+            const isShift = e.shiftKey;
 
-        // SMART: Doppio click apre le porte
-        function onDoubleClick(e) {
-            if(selectedCabinet) {
-                selectedCabinet.params.isOpen = !selectedCabinet.params.isOpen;
-                props.isOpen = selectedCabinet.params.isOpen;
-                ctrls.opn.updateDisplay();
-                updateCabinet(selectedCabinet.params);
+            if(found) {
+                const cab = cabinets.find(c => c.params.id === found.userData.id);
+                
+                if(isShift) {
+                    // Toggle selezione
+                    const idx = selection.indexOf(cab);
+                    if(idx >= 0) {
+                        // Deseleziona questo se già presente (ma non se è l'unico)
+                        if(selection.length > 1) {
+                            const newSel = [...selection];
+                            newSel.splice(idx, 1);
+                            select(newSel);
+                        }
+                    } else {
+                        // Aggiungi alla selezione
+                        select([...selection, cab]);
+                    }
+                } else {
+                    // Selezione singola (se non era già selezionato da solo)
+                    if(!selection.includes(cab) || selection.length > 1) {
+                        select([cab]);
+                    }
+                }
+            } else if(hits.length === 0 || hits[0].object === floorMesh) {
+                // Cliccato sul vuoto
+                if(!isShift) select([]);
             }
         }
 
-        function select(obj) {
-            selectedCabinet = obj;
-            const label = document.getElementById('measure-label');
+        function select(newSelectionArray) {
+            selection = newSelectionArray;
 
-            if(!obj) {
-                selectionBox.visible = false;
-                label.style.opacity = 0;
+            // Pulisci vecchi helpers
+            selectionHelpers.forEach(h => scene.remove(h));
+            selectionHelpers = [];
+
+            const label = document.getElementById('measure-label');
+            label.style.opacity = 0;
+
+            if(selection.length === 0) {
+                // Nessuna selezione
                 return;
             }
 
-            selectionBox.setFromObject(obj.mesh);
-            selectionBox.visible = true;
+            // Crea nuovi helpers per ogni oggetto selezionato
+            selection.forEach(cab => {
+                const box = new THREE.BoxHelper(cab.mesh, 0xe67e22); // Colore arancio
+                scene.add(box);
+                selectionHelpers.push(box);
+            });
 
-            // Sync GUI (senza loop)
-            const p = obj.params;
+            // Se c'è solo un oggetto, aggiorna GUI con i suoi dati
+            // Se ce ne sono molteplici, la GUI controlla l'ultimo ma le azioni (sposta) valgono per tutti
+            const primary = selection[selection.length-1];
+            
+            // Sync GUI Props (senza loop)
+            const p = primary.params;
             Object.assign(props, {
-                type: p.type, color: p.color, width: p.width, height: p.height,
-                elevation: p.elevation, rotation: p.rotation, isOpen: p.isOpen
+                type: p.type, color: p.color,
+                width: p.width, height: p.height, depth: p.depth,
+                elevation: p.elevation, isOpen: p.isOpen
             });
             for(let k in ctrls) ctrls[k].updateDisplay();
 
-            // Aggiorna etichetta 3D
-            updateLabelPos();
+            updateLabel();
         }
 
-        function updateLabelPos() {
-            if(!selectedCabinet) return;
-            const p = selectedCabinet.params;
-            const label = document.getElementById('measure-label');
-            
-            // Proietta posizione 3D in 2D
-            const vec = new THREE.Vector3(p.x, p.elevation + p.height + 20, p.z);
-            vec.project(camera);
-            const x = (vec.x * .5 + .5) * window.innerWidth;
-            const y = (-(vec.y * .5) + .5) * window.innerHeight;
-
-            label.style.left = x + 'px';
-            label.style.top = y + 'px';
-            label.innerText = `${p.width}x${p.height}x${p.depth} cm`;
-            label.style.opacity = 1;
+        function deleteSelection() {
+            if(selection.length === 0) return;
+            selection.forEach(cab => {
+                scene.remove(cab.mesh);
+                cabinets = cabinets.filter(c => c !== cab);
+            });
+            select([]);
         }
 
+        // --- INPUT MOVIMENTO (APPLICA A TUTTA LA SELEZIONE) ---
         function onKeyDown(e) {
-            if (!selectedCabinet) return;
+            if(selection.length === 0) return;
+
             const step = e.shiftKey ? config.fastStep : config.step;
-            let p = selectedCabinet.params;
             let changed = false;
 
-            if(e.key==='ArrowLeft') { p.x -= step; changed=true; }
-            if(e.key==='ArrowRight') { p.x += step; changed=true; }
-            if(e.key==='ArrowUp') { p.z -= step; changed=true; }
-            if(e.key==='ArrowDown') { p.z += step; changed=true; }
-            if(e.key==='r' || e.key==='R') { p.rotation = (p.rotation+90)%360; changed=true; }
-            if(e.key==='Delete') { removeSelected(); changed=false; }
+            // Vettori movimento
+            let dx = 0, dz = 0, dRot = 0;
 
-            if(changed) {
-                selectedCabinet.mesh.position.set(p.x, p.elevation, p.z);
-                selectedCabinet.mesh.rotation.y = p.rotation * (Math.PI/180);
-                selectionBox.update();
-                updateLabelPos();
-                props.rotation = p.rotation; ctrls.rot.updateDisplay();
+            if(e.key==='ArrowLeft') dx = -step;
+            if(e.key==='ArrowRight') dx = step;
+            if(e.key==='ArrowUp') dz = -step;
+            if(e.key==='ArrowDown') dz = step;
+            if(e.key==='r' || e.key==='R') dRot = 90;
+            if(e.key==='Delete') { deleteSelection(); return; }
+
+            if(dx!==0 || dz!==0 || dRot!==0) {
+                // Applica a TUTTI i selezionati
+                selection.forEach(cab => {
+                    const p = cab.params;
+                    p.x += dx;
+                    p.z += dz;
+                    if(dRot) p.rotation = (p.rotation + dRot) % 360;
+
+                    // Aggiorna mesh
+                    cab.mesh.position.set(p.x, p.elevation, p.z);
+                    cab.mesh.rotation.y = p.params.rotation * (Math.PI/180);
+                });
+                
+                // Aggiorna box selezione
+                selectionHelpers.forEach((h, i) => h.update());
+                updateLabel();
             }
         }
 
-        function removeSelected() {
-            if(!selectedCabinet) return;
-            scene.remove(selectedCabinet.mesh);
-            cabinets = cabinets.filter(c => c !== selectedCabinet);
-            select(null);
-            calculateTotal();
+        // Smart: Doppio click apre l'anta
+        function onDoubleClick() {
+            if(selection.length > 0) {
+                selection.forEach(cab => {
+                    cab.params.isOpen = !cab.params.isOpen;
+                    updateCabinetVisual(cab);
+                });
+                select(selection); // Refresh helpers
+            }
         }
 
-        function calculateTotal() {
-            let total = 0;
-            cabinets.forEach(c => total += (prices[c.params.type] || 100));
-            document.getElementById('total-price').innerText = "€ " + total;
+        function updateLabel() {
+            const label = document.getElementById('measure-label');
+            if(selection.length === 1) {
+                const p = selection[0].params;
+                // Proietta
+                const vec = new THREE.Vector3(p.x, p.elevation + p.height + 10, p.z);
+                vec.project(camera);
+                const sx = (vec.x * .5 + .5) * window.innerWidth;
+                const sy = (-(vec.y * .5) + .5) * window.innerHeight;
+                
+                label.style.left = sx + 'px';
+                label.style.top = sy + 'px';
+                label.innerText = `${p.width}x${p.height}x${p.depth}`;
+                label.style.opacity = 1;
+            } else if (selection.length > 1) {
+                // Mostra conteggio
+                label.style.opacity = 0; // O mostra "3 Elementi"
+            } else {
+                label.style.opacity = 0;
+            }
         }
 
         function takePhoto() {
             renderer.render(scene, camera);
             const a = document.createElement('a');
-            a.download = 'progetto_cucina.png';
+            a.download = 'cucina.png';
             a.href = renderer.domElement.toDataURL('image/png');
             a.click();
         }
 
-        // --- GUI SETUP ---
+        // --- GUI ---
         function setupGUI() {
-            const apply = () => { if(selectedCabinet) { 
-                Object.assign(selectedCabinet.params, props); 
-                updateCabinet(selectedCabinet.params); 
-            }};
+            const apply = () => {
+                // Applica modifiche GUI a TUTTI i selezionati
+                selection.forEach(cab => {
+                    Object.assign(cab.params, {
+                        type: props.type, color: props.color,
+                        width: props.width, height: props.height, depth: props.depth,
+                        elevation: props.elevation, isOpen: props.isOpen
+                    });
+                    updateCabinetVisual(cab);
+                });
+                if(selection.length > 0) select(selection); // Refresh boxes
+            };
 
             const fEnv = gui.addFolder('🏠 Ambiente');
-            fEnv.add(props, 'showFloor').name('Pavimento').onChange(v=>floorMesh.visible=v);
-            fEnv.add(props, 'wallColor', Object.keys(matLib).filter(k=>k.startsWith('wall'))).name('Colore Muro').onChange(v => wallMesh.material = matLib[v]);
+            fEnv.add(props, 'showFloor').name('Pavimento').onChange(v => floorMesh.visible = v);
+            fEnv.add(props, 'showWall').name('Muro Posteriore').onChange(v => wallMesh.visible = v);
+            fEnv.add(props, 'wallColor', ['wall_white', 'wall_grey', 'wall_blue']).name('Colore Muro').onChange(v => wallMesh.material = matLib[v]);
             fEnv.add(props, 'resetView').name('Centra Vista');
 
-            const fAdd = gui.addFolder('➕ Moduli');
-            fAdd.add(props, 'addBase').name('Base');
-            fAdd.add(props, 'addCorner').name('Angolo');
-            fAdd.add(props, 'addSink').name('Lavandino');
+            const fAdd = gui.addFolder('➕ Aggiungi (Lineare)');
+            fAdd.add(props, 'addBase').name('Base 60');
+            fAdd.add(props, 'addSink').name('Lavello');
             fAdd.add(props, 'addCook').name('Cottura');
             fAdd.add(props, 'addTall').name('Colonna');
             fAdd.add(props, 'addFridge').name('Frigo');
-            fAdd.add(props, 'addWall').name('Pensile');
+            fAdd.add(props, 'addWall').name('Pensile 35');
 
             const fEdit = gui.addFolder('🔧 Modifica');
-            ctrls.type = fEdit.add(props, 'type', ['base','sink','cooktop','tall','wall','corner','fridge']).name('Modello').onChange(apply);
-            ctrls.color = fEdit.add(props, 'color', ['birch','white_wood','walnut','grey_matte','navy']).name('Colore').onChange(apply);
+            ctrls.type = fEdit.add(props, 'type', ['base','sink','cooktop','tall','fridge','wall']).onChange(apply);
+            ctrls.color = fEdit.add(props, 'color', ['birch','white','wood_dark','grey']).onChange(apply);
             ctrls.w = fEdit.add(props, 'width', 15, 120, 5).onChange(apply);
             ctrls.h = fEdit.add(props, 'height', 15, 250, 5).onChange(apply);
+            ctrls.d = fEdit.add(props, 'depth', 15, 80, 5).onChange(apply);
             ctrls.elv = fEdit.add(props, 'elevation', 0, 250, 5).onChange(apply);
-            ctrls.rot = fEdit.add(props, 'rotation', 0, 360, 15).onChange(apply);
-            ctrls.opn = fEdit.add(props, 'isOpen').name('Ante Aperte').onChange(apply);
-            fEdit.add(props, 'del').name('Elimina');
+            ctrls.opn = fEdit.add(props, 'isOpen').onChange(apply);
+            fEdit.add(props, 'deleteSel').name('Elimina Selezionati');
 
             fAdd.open();
         }
 
         function onResize() {
-            const asp = window.innerWidth/window.innerHeight;
+            const asp = window.innerWidth / window.innerHeight;
             const d = 600;
             camera.left = -d*asp; camera.right = d*asp;
             camera.top = d; camera.bottom = -d;
             camera.updateProjectionMatrix();
             renderer.setSize(window.innerWidth, window.innerHeight);
-            if(selectedCabinet) updateLabelPos();
+            updateLabel();
         }
 
         function animate() {
             requestAnimationFrame(animate);
             controls.update();
             renderer.render(scene, camera);
-            if(selectedCabinet) updateLabelPos();
+            updateLabel();
         }
     </script>
 </body>
