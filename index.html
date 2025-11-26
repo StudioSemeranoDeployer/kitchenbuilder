@@ -2,68 +2,117 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Kitchen Builder - GECO</title>
+    <title>Kitchen Builder - GECO.srl White Edition</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        :root { --primary: #c58f68; --glass: rgba(255,255,255,0.95); --shadow: 0 8px 32px rgba(0,0,0,0.1); }
-        body { margin: 0; overflow: hidden; background: linear-gradient(135deg, #fdfbf7, #f3efe7); font-family: system-ui, sans-serif; user-select: none; touch-action: none; }
-        
-        #loader {
-            position: fixed; inset: 0; background: #fdfbf7; z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s;
+        /* --- DESIGN SYSTEM --- */
+        :root { 
+            --primary: #c58f68; 
+            --dark: #3e3a36; 
+            --bg-gradient: linear-gradient(135deg, #fdfbf7 0%, #f3efe7 100%);
+            --glass: rgba(255, 255, 255, 0.95);
+            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
+            --shadow: 0 10px 40px rgba(62, 58, 54, 0.15);
+            --accent: #e07a5f;
         }
-        .loader-txt { font-weight: 800; font-size: 24px; color: #444; letter-spacing: 2px; }
 
-        #ui-layer { position: absolute; inset: 0; pointer-events: none; }
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-gradient); touch-action: none; user-select: none; }
+        
+        /* LOADER */
+        #loader {
+            position: fixed; inset: 0; z-index: 10000;
+            background: #fdfbf7; display: flex; flex-direction: column;
+            justify-content: center; align-items: center; transition: opacity 0.6s;
+        }
+        .loader-icon { font-size: 50px; animation: bounce 1s infinite; margin-bottom: 10px; }
+        .loader-text { font-size: 16px; font-weight: 600; color: #555; letter-spacing: 2px; }
+        .loader-sub { font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 5px; opacity: 0.8; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
+
+        /* UI LAYER */
+        #ui-layer { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
 
         /* TOOLBAR */
         #toolbar {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 95%; max-width: 900px; display: flex; gap: 10px; pointer-events: auto;
-            overflow-x: auto; padding: 10px; z-index: 100; scrollbar-width: none;
+            width: 95%; max-width: 900px;
+            display: flex; gap: 10px; pointer-events: auto;
+            overflow-x: auto; padding: 10px;
+            scrollbar-width: none; -ms-overflow-style: none; z-index: 100;
         }
+        #toolbar::-webkit-scrollbar { display: none; }
+
         .panel {
-            background: var(--glass); border-radius: 16px; padding: 10px;
-            box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5);
-            display: flex; flex-direction: column; gap: 5px; min-width: max-content;
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: var(--glass-border); border-radius: 18px; padding: 12px;
+            box-shadow: var(--shadow);
+            display: flex; flex-direction: column; gap: 8px;
+            min-width: max-content;
         }
-        .panel-head { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; }
-        .btn-row { display: flex; gap: 5px; }
+        
+        .panel-title { 
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8d7f75; 
+            font-weight: 800; border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 5px; margin-bottom: 2px;
+        }
+
+        .btn-row { display: flex; gap: 6px; }
+
         .btn {
-            background: #fff; border: 1px solid #ddd; padding: 8px 12px; border-radius: 8px;
-            font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
-            transition: 0.2s; white-space: nowrap;
+            background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.08);
+            color: var(--dark); padding: 10px 16px; border-radius: 10px;
+            font-size: 13px; font-weight: 600; cursor: pointer;
+            display: flex; align-items: center; gap: 6px;
+            transition: all 0.15s; white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .btn:active { transform: scale(0.95); background: var(--primary); color: white; }
         .btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-accent { background: rgba(224, 122, 95, 0.1); color: #d35400; }
+        .btn-accent { color: var(--accent); background: rgba(224, 122, 95, 0.1); border-color: rgba(224, 122, 95, 0.2); }
 
-        /* CONTROLS */
-        #controls {
-            position: absolute; right: 20px; bottom: 160px; pointer-events: auto;
-            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
-            opacity: 0; transform: translateY(20px); transition: 0.3s;
+        /* D-PAD */
+        #virtual-controls {
+            position: absolute; right: 20px; bottom: 160px;
+            display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
+            pointer-events: none; opacity: 0; transition: opacity 0.3s, transform 0.3s;
+            transform: translateY(20px); z-index: 90;
         }
-        #controls.visible { opacity: 1; transform: translateY(0); }
-        .d-pad {
-            display: grid; grid-template-columns: repeat(3, 45px); gap: 5px;
-            background: var(--glass); padding: 5px; border-radius: 50%; box-shadow: var(--shadow);
-        }
-        .pad-btn { width: 100%; height: 45px; border: none; background: #fff; border-radius: 8px; font-size: 18px; cursor: pointer; }
-        .pad-btn:active { background: var(--primary); color: white; }
-        .pad-btn:nth-child(1) { grid-column: 2; } 
-        .pad-btn:nth-child(2) { grid-column: 1; }
-        .pad-btn:nth-child(3) { grid-column: 3; }
-        .pad-btn:nth-child(4) { grid-column: 2; }
-        
-        .actions { display: flex; gap: 10px; margin-right: 5px; }
-        .act-btn { width: 45px; height: 45px; border-radius: 50%; border: none; background: #fff; font-size: 20px; cursor: pointer; box-shadow: var(--shadow); }
-        .btn-del { color: red; background: #fff5f5; }
+        #virtual-controls.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
-        #tooltip {
-            position: absolute; background: rgba(30,30,30,0.9); color: white;
-            padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
-            pointer-events: none; opacity: 0; transform: translate(-50%, -100%); margin-top: -15px;
+        .d-pad { 
+            background: rgba(255, 255, 255, 0.7); padding: 5px; border-radius: 50%; 
+            display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px);
+            gap: 5px; backdrop-filter: blur(8px); box-shadow: var(--shadow);
+        }
+        .d-pad button:nth-child(1) { grid-column: 2; grid-row: 1; }
+        .d-pad button:nth-child(2) { grid-column: 1; grid-row: 2; }
+        .d-pad button:nth-child(3) { grid-column: 3; grid-row: 2; }
+        .d-pad button:nth-child(4) { grid-column: 2; grid-row: 3; }
+
+        .ctrl-btn {
+            width: 100%; height: 100%; border-radius: 12px; border: none;
+            background: #fff; color: var(--dark);
+            font-size: 20px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .ctrl-btn:active { background: var(--primary); color: white; transform: scale(0.9); }
+        .action-row { display: flex; gap: 10px; margin-right: 10px; }
+        .btn-round { width: 50px; height: 50px; border-radius: 50%; }
+        .btn-del { background: #fff0f0; color: #d63031; }
+
+        /* TOOLTIP & TOAST */
+        #measure-tooltip {
+            position: absolute; top: 0; left: 0;
+            background: rgba(44, 44, 44, 0.95); color: white;
+            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
+            pointer-events: none; opacity: 0; transform: translate(-50%, -100%);
+            margin-top: -15px; white-space: nowrap; z-index: 2000;
+        }
+
+        @media (min-width: 769px) {
+            #toolbar { bottom: auto; top: 20px; left: 20px; transform: none; flex-direction: column; width: auto; max-height: 90vh; }
+            .panel { width: 240px; }
+            .btn-row { flex-wrap: wrap; }
+            #virtual-controls { bottom: 40px; }
         }
     </style>
     
@@ -73,583 +122,532 @@
 </head>
 <body>
 
-<div id="loader">
-    <div class="loader-txt">🦎GECO.srl</div>
-    <div style="font-size:12px; color:#999; margin-top:5px;">CARICAMENTO SISTEMA...</div>
-</div>
-
-<div id="ui-layer">
-    <div id="tooltip"></div>
-
-    <div id="controls">
-        <div class="d-pad">
-            <button class="pad-btn" onpointerdown="app.move(0,-1)">▲</button>
-            <button class="pad-btn" onpointerdown="app.move(-1,0)">◄</button>
-            <button class="pad-btn" onpointerdown="app.move(1,0)">►</button>
-            <button class="pad-btn" onpointerdown="app.move(0,1)">▼</button>
-        </div>
-        <div class="actions">
-            <button class="act-btn" onclick="app.rotate()">↻</button>
-            <button class="act-btn" onclick="app.door()">🚪</button>
-            <button class="act-btn btn-del" onclick="app.del()">🗑</button>
-        </div>
+    <div id="loader">
+        <div class="loader-icon">🛋️</div>
+        <div class="loader-text">KITCHEN BUILDER</div>
+        <div class="loader-sub">GECO.srl</div>
     </div>
 
-    <div id="toolbar">
-        <div class="panel">
-            <div class="panel-head">File</div>
-            <div class="btn-row">
-                <button class="btn" onclick="app.save()">💾</button>
-                <button class="btn" onclick="app.load()">📂</button>
-                <button class="btn btn-accent" onclick="app.random()">🎲 Random</button>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-head">Strumenti</div>
-            <div class="btn-row">
-                <button class="btn" onclick="app.photo()">📷</button>
-                <button class="btn" id="btn-dim" onclick="app.toggleDims()">📏 Quote: OFF</button>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-head">Moduli</div>
-            <div class="btn-row">
-                <button class="btn" onclick="app.add('base')">Base</button>
-                <button class="btn" onclick="app.add('sink')">Lavello</button>
-                <button class="btn" onclick="app.add('cooktop')">Fuochi</button>
-                <button class="btn" onclick="app.add('fridge')">Frigo</button>
-                <button class="btn" onclick="app.add('tall')">Colonna</button>
-                <button class="btn" onclick="app.add('wall')">Pensile</button>
-            </div>
-        </div>
-        <div class="panel">
-            <div class="panel-head">Extra</div>
-            <div class="btn-row">
-                <button class="btn" onclick="app.add('board_h')">Mensola</button>
-                <button class="btn" onclick="app.add('board_v')">Pannello</button>
-                <button class="btn" onclick="app.add('slatted')">Boiserie</button>
-                <button class="btn" onclick="app.add('led')">LED</button>
-                <button class="btn" onclick="app.add('door')">Porta</button>
-                <button class="btn" onclick="app.add('window')">Finestra</button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<script type="module">
-import * as THREE from 'three';
-import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
-import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
-
-// --- CONFIG & STATE ---
-let scene, camera, renderer, controls;
-let cabinets = []; // Array dati
-let meshes = [];   // Array oggetti 3D
-let selection = [];
-let helpers = [];
-let dimGroup = null;
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
-let isDimMode = false;
-let floor, wall;
-
-const props = {
-    color: 'white', 
-    width: 60, height: 85, depth: 60, elevation: 0,
-    wallColor: 'wall_cream', showEnv: true
-};
-
-const texCache = {};
-
-// --- TEXTURE GENERATOR ---
-function getTexture(type, colorHex) {
-    const key = type + colorHex;
-    if(texCache[key]) return texCache[key];
-
-    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256;
-    const ctx = cv.getContext('2d');
-    
-    // Sfondo solido
-    ctx.fillStyle = colorHex; ctx.fillRect(0,0,256,256);
-    
-    // Effetto
-    if(type === 'wood') {
-        ctx.globalCompositeOperation = 'multiply';
-        ctx.globalAlpha = 0.08;
-        ctx.beginPath();
-        for(let i=0; i<30; i++) {
-            const y = Math.random()*256;
-            ctx.moveTo(0, y); ctx.bezierCurveTo(80, y+20, 160, y-20, 256, y);
-        }
-        ctx.strokeStyle = '#555'; ctx.stroke();
-    } else { // stone
-        ctx.globalAlpha = 0.1;
-        for(let i=0; i<500; i++) {
-            ctx.fillStyle = Math.random()>.5?'#fff':'#000';
-            ctx.fillRect(Math.random()*256, Math.random()*256, 2, 2);
-        }
-    }
-
-    const tex = new THREE.CanvasTexture(cv);
-    const mat = new THREE.MeshStandardMaterial({ 
-        map: tex, 
-        roughness: type==='wood'?0.6:0.9, 
-        metalness: type==='wood'?0.05:0.1 
-    });
-    texCache[key] = mat;
-    return mat;
-}
-
-function getMat(name) {
-    const pal = { white:'#ffffff', cream:'#fdf6e3', oak:'#e6ccb2', walnut:'#a68a64', sand:'#ddb892', kick:'#dcdcdc' };
-    if(pal[name]) return getTexture('wood', pal[name]);
-    
-    if(name === 'glass') return new THREE.MeshPhysicalMaterial({ color:0xaaccff, transmission:0.8, opacity:0.3, transparent:true });
-    if(name === 'led') return new THREE.MeshBasicMaterial({ color:0xffffee });
-    if(name === 'steel') return new THREE.MeshStandardMaterial({ color:0xcccccc, metalness:0.6, roughness:0.4 });
-    if(name === 'black') return new THREE.MeshStandardMaterial({ color:0x222222 });
-    if(name === 'wall_cream') return new THREE.MeshStandardMaterial({ color:0xfcfcf7 });
-    if(name === 'wall_taupe') return new THREE.MeshStandardMaterial({ color:0xd3cbb8 });
-    if(name === 'wall_sage') return new THREE.MeshStandardMaterial({ color:0xc1cdb9 });
-    
-    return getTexture('stone', '#e8e4dc'); // Default top
-}
-
-// --- INIT ---
-function init() {
-    scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xfcfbf4);
-    scene.fog = new THREE.Fog(0xfcfbf4, 300, 1200);
-
-    const aspect = window.innerWidth / window.innerHeight;
-    const d = window.innerWidth < 768 ? 220 : 160;
-    camera = new THREE.OrthographicCamera(-d*aspect, d*aspect, d, -d, 1, 4000);
-    camera.position.set(300, 300, 300);
-    camera.lookAt(0, 50, 0);
-
-    renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer:true });
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    renderer.shadowMap.enabled = true;
-    document.body.appendChild(renderer.domElement);
-
-    const amb = new THREE.AmbientLight(0xfff0e0, 0.7); scene.add(amb);
-    const sun = new THREE.DirectionalLight(0xffffff, 0.7);
-    sun.position.set(150, 400, 200); sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024); scene.add(sun);
-
-    // Environment
-    wall = new THREE.Mesh(new THREE.BoxGeometry(2000, 500, 10), getMat('wall_cream'));
-    wall.position.set(0, 250, -35); wall.receiveShadow = true; scene.add(wall);
-
-    floor = new THREE.Mesh(new THREE.PlaneGeometry(2000, 1000), getTexture('stone', '#eeeae5'));
-    floor.rotation.x = -Math.PI/2; floor.position.set(0, -0.1, 200);
-    floor.receiveShadow = true; scene.add(floor);
-
-    const grid = new THREE.GridHelper(2000, 50, 0xccaacc, 0xeeddcc);
-    grid.position.set(0, 0.1, 200); grid.material.opacity = 0.3; grid.material.transparent = true;
-    scene.add(grid);
-
-    dimGroup = new THREE.Group();
-    scene.add(dimGroup);
-
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true; controls.maxPolarAngle = Math.PI/2;
-
-    setupGUI();
-    window.addEventListener('resize', onResize);
-    
-    // EVENTI CLICK
-    let downPos = new THREE.Vector2();
-    renderer.domElement.addEventListener('pointerdown', e => downPos.set(e.clientX, e.clientY));
-    renderer.domElement.addEventListener('pointerup', e => {
-        if(downPos.distanceTo(new THREE.Vector2(e.clientX,e.clientY)) > 5) return;
-        handleClick(e);
-    });
-
-    // AVVIO
-    generateRandom();
-    
-    setTimeout(() => {
-        document.getElementById('loader').style.opacity = 0;
-        setTimeout(() => document.getElementById('loader').remove(), 500);
-    }, 500);
-
-    animate();
-}
-
-function onResize() {
-    const aspect = window.innerWidth / window.innerHeight;
-    const d = window.innerWidth < 768 ? 220 : 160;
-    camera.left = -d*aspect; camera.right = d*aspect; camera.top = d; camera.bottom = -d;
-    camera.updateProjectionMatrix();
-    renderer.setSize(window.innerWidth, window.innerHeight);
-}
-
-// --- CORE FUNCTIONS ---
-function createCabinet(p, selectIt) {
-    // Aggiungi ai dati
-    cabinets.push(p);
-    
-    // Crea Mesh
-    const mesh = buildMesh(p);
-    mesh.userData = { id: p.id }; // Link mesh -> data
-    scene.add(mesh);
-    meshes.push(mesh);
-
-    if(selectIt) select([p.id]);
-    else updateDims();
-}
-
-function buildMesh(p) {
-    const grp = new THREE.Group();
-    grp.position.set(p.x, p.elevation, p.z);
-    grp.rotation.y = p.rotation * Math.PI/180;
-
-    const mat = getMat(p.color);
-    
-    if(p.type==='led') {
-        const m=new THREE.Mesh(new THREE.BoxGeometry(p.width,1,1), getMat('led'));
-        m.add(new THREE.PointLight(0xffaa00, 0.5, 50)); grp.add(m);
-    } 
-    else if (p.type==='window'||p.type==='door') {
-        // Cornice
-        const fr = new THREE.Mesh(new THREE.BoxGeometry(p.width, p.height, p.depth), mat);
-        // Vetro
-        const gl = new THREE.Mesh(new THREE.BoxGeometry(p.width-10, p.height-10, p.depth+2), getMat('glass'));
-        // Buco visivo (usiamo colori scuri per simulare profondità se non usiamo CSG)
-        fr.add(gl);
-        grp.add(fr);
+    <div id="ui-layer">
         
-        if(p.type==='door') {
-            const h = new THREE.Mesh(new THREE.BoxGeometry(2,10,4), getMat('steel'));
-            h.position.set(p.width/2-10, 0, p.depth/2+2);
-            fr.add(h);
-        }
-    }
-    else {
-        const toe = (p.type==='wall'||p.type==='fridge'||p.type.startsWith('board')) ? 0 : 10;
-        const top = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
-        const hBox = p.height - toe - top;
+        <div id="toolbar">
+            <!-- FILE -->
+            <div class="panel">
+                <div class="panel-title">Progetto</div>
+                <div class="btn-row">
+                    <button class="btn" onclick="app.saveProject()">💾 Salva</button>
+                    <button class="btn" onclick="app.loadProject()">📂 Apri</button>
+                    <button class="btn btn-accent" onclick="app.generateRandom()">🎲 Random</button>
+                </div>
+            </div>
 
-        const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, hBox, p.depth), mat);
-        box.position.y = toe + hBox/2;
-        box.castShadow = true; box.receiveShadow = true;
-        grp.add(box);
+            <!-- VIEW -->
+            <div class="panel">
+                <div class="panel-title">Strumenti</div>
+                <div class="btn-row">
+                    <button class="btn" onclick="app.takePhoto()">📷 Foto</button>
+                    <button class="btn" id="btn-ingombro" onclick="app.toggleIngombro()">📏 Ingombro: OFF</button>
+                </div>
+            </div>
 
-        if(toe>0) {
-            const k = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, toe, p.depth-5), getMat('kick'));
-            k.position.set(0, toe/2, -2); grp.add(k);
-        }
-        if(top>0) {
-            const t = new THREE.Mesh(new THREE.BoxGeometry(p.width, top, p.depth+2), getMat('stone'));
-            t.position.set(0, toe+hBox+top/2, 1); t.castShadow = true; grp.add(t);
-        }
+            <!-- CUCINA -->
+            <div class="panel">
+                <div class="panel-title">Cucina</div>
+                <div class="btn-row" style="flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="btn" onclick="app.spawn('base')">Base</button>
+                    <button class="btn" onclick="app.spawn('sink')">Lavello</button>
+                    <button class="btn" onclick="app.spawn('cooktop')">Fuochi</button>
+                    <button class="btn" onclick="app.spawn('fridge')">Frigo</button>
+                    <button class="btn" onclick="app.spawn('tall')">Colonna</button>
+                    <button class="btn" onclick="app.spawn('wall')">Pensile</button>
+                </div>
+            </div>
 
-        // ANTE
-        if(!p.type.startsWith('board') && p.type !== 'fridge') {
-            const isDouble = p.width>=70;
-            const dw = isDouble ? (p.width/2)-0.2 : p.width-0.4;
-            const dh = hBox-0.4;
-            
-            const makeDoor = (x, dir) => {
-                const d = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat);
-                const h = new THREE.Mesh(new THREE.BoxGeometry(1, 15, 1), getMat('steel'));
-                h.position.set(dir*(dw/2-4), 0, 2); d.add(h);
-                
-                const piv = new THREE.Group();
-                piv.position.set(x, toe+hBox/2, p.depth/2+1);
-                d.position.x = -dir*(dw/2); // Offset
-                piv.add(d);
-                if(p.isOpen) piv.rotation.y = dir*1.5;
-                return piv;
-            };
+            <!-- EXTRA -->
+            <div class="panel">
+                <div class="panel-title">Extra & Decor</div>
+                <div class="btn-row" style="flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px;">
+                    <button class="btn" onclick="app.spawn('board_h')">Mensola</button>
+                    <button class="btn" onclick="app.spawn('board_v')">Pannello</button>
+                    <button class="btn" onclick="app.spawn('slatted')">Boiserie</button>
+                    <button class="btn" onclick="app.spawn('led')">LED</button>
+                    <button class="btn" onclick="app.spawn('door')">Porta</button>
+                    <button class="btn" onclick="app.spawn('window')">Finestra</button>
+                </div>
+            </div>
+        </div>
 
-            if(isDouble) {
-                grp.add(makeDoor(-p.width/2, -1)); // SX
-                grp.add(makeDoor(p.width/2, 1));   // DX (cardine a dx) - wait, cardine DX significa offset positivo
-                // Fix double door logic:
-                // SX: x=-width/2, cardine a SX. DX: x=width/2, cardine a DX.
-                // Simplified:
-                const d1 = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat); d1.position.set(-p.width/4, toe+hBox/2, p.depth/2+1);
-                const d2 = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat); d2.position.set(p.width/4, toe+hBox/2, p.depth/2+1);
-                if(p.isOpen) { d1.rotation.y = 1.2; d2.rotation.y = -1.2; } // Simple rotation
-                grp.add(d1, d2);
-            } else {
-                // Singola, cardine SX
-                const d = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat);
-                const piv = new THREE.Group();
-                piv.position.set(-p.width/2, toe+hBox/2, p.depth/2+1);
-                d.position.x = p.width/2; 
-                piv.add(d);
-                if(p.isOpen) piv.rotation.y = 1.5;
-                grp.add(piv);
+        <!-- CONTROLLI -->
+        <div id="virtual-controls">
+            <div class="d-pad">
+                <button class="ctrl-btn" onpointerdown="app.startMove(0, -1)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">▲</button>
+                <button class="ctrl-btn" onpointerdown="app.startMove(-1, 0)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">◄</button>
+                <button class="ctrl-btn" onpointerdown="app.startMove(1, 0)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">►</button>
+                <button class="ctrl-btn" onpointerdown="app.startMove(0, 1)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">▼</button>
+            </div>
+            <div class="action-row">
+                <button class="ctrl-btn btn-round" onclick="app.rotate()">↻</button>
+                <button class="ctrl-btn btn-round" onclick="app.openDoor()">🚪</button>
+                <button class="ctrl-btn btn-round btn-del" onclick="app.delete()">🗑</button>
+            </div>
+        </div>
+
+        <div id="measure-tooltip"></div>
+    </div>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+        import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
+
+        // --- TEXTURES ---
+        class TextureManager {
+            constructor() { this.cache = {}; }
+            getWood(hex) {
+                const k='w_'+hex; if(this.cache[k])return this.cache[k];
+                const c=document.createElement('canvas');c.width=256;c.height=256;
+                const x=c.getContext('2d');x.fillStyle=hex;x.fillRect(0,0,256,256);
+                x.globalCompositeOperation='multiply'; x.globalAlpha=0.06;
+                for(let i=0;i<30;i++){
+                    x.beginPath();x.moveTo(0,Math.random()*256);
+                    x.bezierCurveTo(80,Math.random()*256,170,Math.random()*256,256,Math.random()*256);
+                    x.strokeStyle='#6b5b4e';x.stroke();
+                }
+                const m=new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:0.6,metalness:0.05});
+                this.cache[k]=m; return m;
+            }
+            getStone(hex) {
+                const k='s_'+hex; if(this.cache[k])return this.cache[k];
+                const c=document.createElement('canvas');c.width=256;c.height=256;
+                const x=c.getContext('2d');x.fillStyle=hex;x.fillRect(0,0,256,256);
+                x.globalAlpha=0.08;
+                for(let i=0;i<1000;i++){x.fillStyle=Math.random()>.5?'#fff':'#555';x.fillRect(Math.random()*256,Math.random()*256,2,2);}
+                const m=new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:0.9});
+                this.cache[k]=m; return m;
             }
         }
+
+        // --- VARIABILI GLOBALI ---
+        let scene, camera, renderer, controls, raycaster, mouse, texManager;
+        let cabinets = [], selection = [], selectionHelpers = [];
+        let ingombroGroup = null, floorMesh, wallMesh;
+        let isIngombroMode = false, moveInterval = null, mouseDownPos = new THREE.Vector2();
         
-        if(p.type==='sink') {
-            const s = new THREE.Mesh(new THREE.BoxGeometry(p.width-20, 15, p.depth-20), getMat('steel'));
-            s.position.set(0, p.height, 0); grp.add(s);
+        const config = { step: 2, gridSize: 1800 };
+        const props = {
+            type: 'base', color: 'cream', width: 60, height: 85, depth: 60, elevation: 0,
+            showFloor: true, showWall: true, wallColor: 'wall_cream',
+            addBase:()=>linearSpawn('base'), addSink:()=>linearSpawn('sink'), addCook:()=>linearSpawn('cooktop'),
+            deleteSel:()=>deleteSelection()
+        };
+
+        const gui = new GUI({ title: 'Impostazioni', width: 280 }); gui.close();
+        const ctrls = {};
+
+        // --- APP ---
+        window.app = {
+            spawn: (t) => linearSpawn(t),
+            saveProject: saveToJSON, loadProject: loadFromJSON, generateRandom: generateRandomKitchen,
+            takePhoto: takePhoto, toggleIngombro: toggleIngombroMode,
+            startMove: (x,z) => { moveSelection(x,z); moveInterval=setInterval(()=>moveSelection(x,z),100); },
+            stopMove: () => clearInterval(moveInterval),
+            rotate: () => rotateSelection(), delete: () => deleteSelection(),
+            openDoor: () => { selection.forEach(c => { c.params.isOpen=!c.params.isOpen; rebuildCabinet(c); }); select(selection); }
+        };
+
+        init();
+
+        function init() {
+            texManager = new TextureManager();
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0xfcfbf4);
+            scene.fog = new THREE.Fog(0xfcfbf4, 250, 1500); // Nebbia più vicina per fondere
+
+            const asp = window.innerWidth / window.innerHeight;
+            // ZOOM CAMERA: Valore 'd' ridotto a 160 per inquadratura molto vicina
+            const d = window.innerWidth < 768 ? 220 : 160;
+            camera = new THREE.OrthographicCamera(-d*asp, d*asp, d, -d, 1, 4000);
+            camera.position.set(300, 300, 300);
+            camera.lookAt(0, 50, 0);
+
+            renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            document.body.appendChild(renderer.domElement);
+
+            const amb = new THREE.AmbientLight(0xfff5e6, 0.75); scene.add(amb);
+            const sun = new THREE.DirectionalLight(0xffffff, 0.65);
+            sun.position.set(150, 400, 200); sun.castShadow = true;
+            sun.shadow.mapSize.set(1024, 1024); sun.shadow.bias = -0.0005;
+            scene.add(sun);
+
+            controls = new OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true; controls.dampingFactor = 0.08;
+            controls.maxPolarAngle = Math.PI / 2; controls.target.set(0, 50, 0);
+
+            raycaster = new THREE.Raycaster(); mouse = new THREE.Vector2();
+            ingombroGroup = new THREE.Group(); scene.add(ingombroGroup);
+
+            createEnv();
+            setupGUI();
+
+            window.addEventListener('resize', onResize);
+            renderer.domElement.addEventListener('pointerdown', e => mouseDownPos.set(e.clientX, e.clientY));
+            renderer.domElement.addEventListener('pointerup', onPointerUp);
+
+            setTimeout(() => {
+                generateRandomKitchen(); 
+                document.getElementById('loader').style.opacity = 0;
+                setTimeout(() => document.getElementById('loader').remove(), 600);
+            }, 800);
+            animate();
         }
-        if(p.type==='cooktop') {
-            const c = new THREE.Mesh(new THREE.BoxGeometry(p.width-20, 1, p.depth-20), getMat('black'));
-            c.position.set(0, p.height, 0); grp.add(c);
-        }
-    }
-    return grp;
-}
 
-// --- GESTIONE ---
-function add(type) {
-    let w=60, h=85, d=60, y=0;
-    if(type==='sink'||type==='cooktop') w=90;
-    if(type==='tall'||type==='fridge') h=215;
-    if(type==='wall') { h=72; d=35; y=145; }
-    if(type==='board_h') { h=4; d=30; }
-    if(type==='board_v') { w=4; }
-    if(type==='slatted') { h=240; d=2; }
-    if(type==='door') { w=90; h=210; d=10; }
-    if(type==='window') { w=120; h=120; d=10; y=100; }
-    if(type==='led') { h=1; d=1; }
-
-    let x=0, z=0, r=0, c=props.color;
-    // Auto posizionamento
-    if(selection.length > 0) {
-        const ref = cabinets.find(cab => cab.id === selection[selection.length-1]);
-        if(ref) {
-            x = ref.x + ref.width/2 + w/2;
-            z = ref.z;
-            r = ref.rotation;
-            if(!['led','glass'].includes(ref.color)) c = ref.color;
-        }
-    } else if (cabinets.length > 0) {
-        const ref = cabinets[cabinets.length-1];
-        x = ref.x + ref.width/2 + w/2;
-        z = ref.z;
-    }
-
-    createCabinet({
-        id: Math.random().toString(36),
-        type, color: c, width:w, height:h, depth:d, elevation:y, rotation:r, x, z, isOpen:false
-    }, true);
-}
-
-function handleClick(e) {
-    const rect = renderer.domElement.getBoundingClientRect();
-    mouse.x = ((e.clientX - rect.left)/rect.width)*2 -1;
-    mouse.y = -((e.clientY - rect.top)/rect.height)*2 +1;
-    raycaster.setFromCamera(mouse, camera);
-    const hits = raycaster.intersectObjects(meshes, true);
-    
-    let hitId = null;
-    for(let hit of hits) {
-        let obj = hit.object;
-        while(obj) { if(obj.userData.id) { hitId=obj.userData.id; break; } obj=obj.parent; }
-        if(hitId) break;
-    }
-
-    if(hitId) {
-        if(e.shiftKey) {
-            if(selection.includes(hitId)) select(selection.filter(id=>id!==hitId));
-            else select([...selection, hitId]);
-        } else {
-            select([hitId]);
-        }
-    } else if (hits.length === 0) {
-        if(!e.shiftKey) select([]);
-    }
-}
-
-function select(ids) {
-    selection = ids;
-    helpers.forEach(h=>scene.remove(h)); helpers=[];
-    
-    selection.forEach(id => {
-        const m = meshes.find(m => m.userData.id === id);
-        if(m) {
-            const box = new THREE.BoxHelper(m, 0xe07a5f);
-            scene.add(box); helpers.push(box);
-        }
-    });
-
-    const panel = document.getElementById('controls');
-    if(selection.length) {
-        panel.classList.add('visible');
-        // Sync GUI
-        const last = cabinets.find(c=>c.id===selection[selection.length-1]);
-        if(last) {
-            props.color = last.color;
-            props.width = last.width;
-            props.height = last.height;
-            props.depth = last.depth;
-            props.elevation = last.elevation;
-            // update gui display manually not strictly needed but good
-        }
-    } else {
-        panel.classList.remove('visible');
-    }
-    updateDims();
-    updateTooltip();
-}
-
-function updateProps() {
-    selection.forEach(id => {
-        const idx = cabinets.findIndex(c=>c.id===id);
-        if(idx>=0) {
-            Object.assign(cabinets[idx], props); // merge props
-            // Rebuild
-            const oldMesh = meshes.find(m=>m.userData.id===id);
-            scene.remove(oldMesh);
-            meshes = meshes.filter(m=>m!==oldMesh);
+        // --- MAT & ENV ---
+        function getMaterial(n) {
+            // AGGIUNTO 'white' AL DIZIONARIO COLORI
+            const p = { cream:'#fbf6e9', white:'#ffffff', oak:'#dcbba0', walnut:'#a0886f', sand:'#d4cbb3', kick:'#dcdcdc' };
+            if(p[n]) return texManager.getWood(p[n]);
+            if(n==='glass') return new THREE.MeshPhysicalMaterial({ color:0xddeeff, transmission:0.7, transparent:true, opacity:0.3 });
+            if(n==='led_light') return new THREE.MeshBasicMaterial({ color:0xfff4e0 });
             
-            const newMesh = buildMesh(cabinets[idx]);
-            newMesh.userData = { id: id };
-            scene.add(newMesh);
-            meshes.push(newMesh);
+            const t = {
+                top: texManager.getStone('#edece6'),
+                steel: new THREE.MeshStandardMaterial({ color:0xcccccc, metalness:0.6, roughness:0.4 }),
+                black: new THREE.MeshStandardMaterial({ color:0x222222 }),
+                wall_cream: new THREE.MeshStandardMaterial({ color:0xfcfcf7 }),
+                wall_taupe: new THREE.MeshStandardMaterial({ color:0xd3cbb8 }),
+                wall_sage: new THREE.MeshStandardMaterial({ color:0xc1cdb9 })
+            };
+            return t[n] || t.wall_cream;
         }
-    });
-    select(selection); // Refresh helpers
-}
 
-// --- DIMENSIONS ---
-function createLabel(txt) {
-    const cv = document.createElement('canvas'); cv.width=128; cv.height=64;
-    const ctx = cv.getContext('2d');
-    ctx.fillStyle = 'rgba(255,255,255,0.85)';
-    ctx.beginPath(); ctx.roundRect(0,0,128,64,12); ctx.fill();
-    ctx.strokeStyle = '#c58f68'; ctx.lineWidth=4; ctx.stroke();
-    ctx.fillStyle='#000'; ctx.font='bold 28px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(txt, 64, 32);
-    const s = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv), depthTest:false}));
-    s.scale.set(30,15,1); s.renderOrder=999;
-    return s;
-}
+        function createEnv() {
+            const w = new THREE.Mesh(new THREE.BoxGeometry(config.gridSize, 500, 10), getMaterial('wall_cream'));
+            w.position.set(0, 250, -35); w.receiveShadow = true; scene.add(w); wallMesh = w;
+            const f = new THREE.Mesh(new THREE.PlaneGeometry(config.gridSize, config.gridSize/2), texManager.getStone('#e8e4dc'));
+            f.rotation.x = -Math.PI/2; f.position.set(0, -0.1, (config.gridSize/4) - 30);
+            f.receiveShadow = true; scene.add(f); floorMesh = f;
+            const g = new THREE.GridHelper(config.gridSize, 40, 0xd4a373, 0xeaddcf);
+            g.position.set(0, 0.1, (config.gridSize/4) - 30); g.material.opacity=0.3; g.material.transparent=true; scene.add(g);
+        }
 
-function updateDims() {
-    dimGroup.clear();
-    if(selection.length === 0 && !isDimMode) return;
+        // --- SPAWN E COSTRUZIONE ---
+        function linearSpawn(type) {
+            const defs = { 
+                base:[85,0,60], sink:[85,0,60], cooktop:[85,0,60], tall:[215,0,60], fridge:[215,0,60], wall:[72,145,35],
+                board_h:[4,0,30], board_v:[85,0,4], slatted:[240,0,2], door:[210,0,10], window:[120,100,10], led:[1,0,1]
+            };
+            const [h, y, d] = defs[type] || [60,0,60];
+            let w = (type==='door')?90:(type==='window'?120:(type==='slatted'?60:60));
+            let tx=0, tz=0, trot=0, col=props.color;
 
-    cabinets.forEach(c => {
-        // Mostra se Mode=ON oppure se fa parte della Selezione
-        if(isDimMode || selection.includes(c.id)) {
-            const m = meshes.find(x=>x.userData.id===c.id);
-            if(!m) return;
+            if (cabinets.length > 0) {
+                const last = cabinets[cabinets.length-1];
+                if(!['led','glass'].includes(last.params.color)) col = last.params.color;
+                const rad = last.params.rotation * (Math.PI/180);
+                const dist = (last.params.width/2) + (w/2);
+                tx = last.params.x + Math.cos(rad) * dist;
+                tz = last.params.z + Math.sin(rad) * dist;
+                trot = last.params.rotation;
+            }
+
+            const p = { id:crypto.randomUUID(), type, color:col, width:w, height:h, depth:d, elevation:y, rotation:trot, x:tx, z:tz, isOpen:false };
+            createCabinet(p, true);
+        }
+
+        function createCabinet(p, sel=false) {
+            const mesh = buildMesh(p);
+            mesh.userData = { isCab:true, id:p.id };
+            scene.add(mesh);
+            const obj = { mesh, params:p };
+            cabinets.push(obj);
+            if(sel) select([obj]);
+            updateIngombro();
+        }
+
+        function rebuildCabinet(cab) {
+            scene.remove(cab.mesh);
+            cab.mesh = buildMesh(cab.params);
+            cab.mesh.userData = { isCab:true, id:cab.params.id };
+            scene.add(cab.mesh);
+        }
+
+        function buildMesh(p) {
+            const grp = new THREE.Group();
+            grp.position.set(p.x, p.elevation, p.z);
+            grp.rotation.y = p.rotation * (Math.PI/180);
+
+            if(p.type === 'led') {
+                const l = new THREE.Mesh(new THREE.BoxGeometry(p.width,1,1), getMaterial('led_light'));
+                const pl = new THREE.PointLight(0xfff4e0, 0.5, 100); pl.position.set(0,-5,0); l.add(pl);
+                grp.add(l); return grp;
+            }
+            if(p.type === 'window') {
+                const f=5, m=getMaterial(p.color);
+                const t=new THREE.Mesh(new THREE.BoxGeometry(p.width,f,p.depth),m); t.position.y=p.height/2-f/2;
+                const b=new THREE.Mesh(new THREE.BoxGeometry(p.width,f,p.depth),m); b.position.y=-p.height/2+f/2;
+                const l=new THREE.Mesh(new THREE.BoxGeometry(f,p.height,p.depth),m); l.position.x=-p.width/2+f/2;
+                const r=new THREE.Mesh(new THREE.BoxGeometry(f,p.height,p.depth),m); r.position.x=p.width/2-f/2;
+                const gl=new THREE.Mesh(new THREE.BoxGeometry(p.width-f*2,p.height-f*2,2),getMaterial('glass'));
+                const wg=new THREE.Group(); wg.add(t,b,l,r,gl); wg.position.y=p.height/2; grp.add(wg); return grp;
+            }
+            if(p.type === 'door') {
+                const f=5, m=getMaterial(p.color);
+                const t=new THREE.Mesh(new THREE.BoxGeometry(p.width,f,p.depth),m); t.position.y=p.height-f/2;
+                const l=new THREE.Mesh(new THREE.BoxGeometry(f,p.height,p.depth),m); l.position.set(-p.width/2+f/2,p.height/2,0);
+                const r=new THREE.Mesh(new THREE.BoxGeometry(f,p.height,p.depth),m); r.position.set(p.width/2-f/2,p.height/2,0);
+                const dp=new THREE.Mesh(new THREE.BoxGeometry(p.width-f*2,p.height-f,4),m); dp.position.y=(p.height-f)/2;
+                const h=new THREE.Mesh(new THREE.BoxGeometry(2,12,4),getMaterial('steel')); h.position.set(p.width/2-15,100,4);
+                const dg=new THREE.Group(); dg.add(dp,h); dg.position.set(-p.width/2+f,0,0);
+                dp.position.x=(p.width-f*2)/2; h.position.x=(p.width-f*2)-10;
+                if(p.isOpen) dg.rotation.y=Math.PI/2.5;
+                grp.add(t,l,r,dg); return grp;
+            }
+            if(p.type === 'slatted') {
+                const bk = new THREE.Mesh(new THREE.BoxGeometry(p.width,p.height,1), getMaterial(p.color));
+                bk.position.y = p.height/2; grp.add(bk);
+                const cnt = Math.floor(p.width/5);
+                for(let i=0; i<cnt; i++){
+                    const s=new THREE.Mesh(new THREE.BoxGeometry(3,p.height,p.depth), getMaterial(p.color));
+                    s.position.set(-p.width/2+(i*5)+2.5, p.height/2, 1); grp.add(s);
+                }
+                return grp;
+            }
+
+            const toe = (p.type==='wall'||p.type==='fridge'||p.type.startsWith('board')) ? 0 : 10;
+            const top = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
+            const body = p.height - toe - top;
+            const mat = getMaterial(p.color);
+
+            const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, body, p.depth), mat);
+            box.position.y = toe + body/2;
+            box.castShadow = true; box.receiveShadow = true;
+            if(mat.map) mat.map.repeat.set(p.width/100, body/100);
+            grp.add(box);
+
+            if(top>0) {
+                const t = new THREE.Mesh(new THREE.BoxGeometry(p.width, top, p.depth+2), getMaterial('top'));
+                t.position.set(0, toe+body+top/2, 1); t.castShadow = true; grp.add(t);
+            }
+            if(toe>0) {
+                const k = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, toe, p.depth-5), getMaterial('kick'));
+                k.position.set(0, toe/2, -2.5); grp.add(k);
+            }
+
+            if(p.type==='fridge') {
+                const f = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, p.height-2, 2), mat);
+                f.position.set(0, p.height/2, p.depth/2+1); grp.add(f);
+            } else if (!p.type.startsWith('board')) {
+                const dg = new THREE.Group(); dg.position.set(0, toe+body/2, p.depth/2+1);
+                const is2 = p.width >= 70; const dw = is2 ? (p.width/2)-0.2 : p.width-0.4;
+                if(is2) {
+                    const d1=mkDoor(dw, body-0.4, mat, -1); d1.position.x = -p.width/4;
+                    const d2=mkDoor(dw, body-0.4, mat, 1); d2.position.x = p.width/4;
+                    if(p.isOpen) { d1.rotation.y=1.5; d2.rotation.y=-1.5; }
+                    dg.add(d1, d2);
+                } else {
+                    const d1=mkDoor(dw, body-0.4, mat, 1);
+                    if(p.isOpen) { d1.rotation.y=1.5; d1.position.x+=dw/2; }
+                    dg.add(d1);
+                }
+                grp.add(dg);
+            }
+
+            if(p.type==='sink') {
+                const s = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 15, p.depth-15), getMaterial('steel'));
+                s.position.set(0, toe+body, 0); 
+                const tap = new THREE.Mesh(new THREE.CylinderGeometry(1,1,15), getMaterial('steel'));
+                tap.position.set(0, toe+body+8, -10); tap.rotation.x=0.3; grp.add(s, tap);
+            }
+            if(p.type==='cooktop') {
+                const c = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 1, p.depth-15), getMaterial('black'));
+                c.position.set(0, toe+body+top+0.5, 0); grp.add(c);
+            }
+            return grp;
+        }
+
+        function mkDoor(w, h, m, dir) {
+            const g=new THREE.Group();
+            const p=new THREE.Mesh(new THREE.BoxGeometry(w, h, 2), m); g.add(p);
+            const hn=new THREE.Mesh(new THREE.BoxGeometry(1, 15, 1), getMaterial('steel'));
+            hn.position.set(dir>0 ? -w/2+4 : w/2-4, 5, 2); g.add(hn); return g;
+        }
+
+        function moveSelection(dx, dz) {
+            if(!selection.length) return;
+            const s = config.step;
+            selection.forEach(c => {
+                c.params.x += dx*s; c.params.z += dz*s;
+                c.mesh.position.set(c.params.x, c.params.elevation, c.params.z);
+            });
+            selectionHelpers.forEach(h=>h.update());
+            updateTooltip(); updateIngombro();
+        }
+
+        function rotateSelection() {
+            if(!selection.length) return;
+            selection.forEach(c => {
+                c.params.rotation = (c.params.rotation + 90) % 360;
+                c.mesh.rotation.y = c.params.rotation * (Math.PI/180);
+            });
+            selectionHelpers.forEach(h=>h.update()); updateIngombro();
+        }
+
+        function deleteSelection() {
+            selection.forEach(c => { scene.remove(c.mesh); cabinets=cabinets.filter(x=>x!==c); });
+            select([]); updateIngombro();
+        }
+
+        function onPointerUp(e) {
+            if(mouseDownPos.distanceTo(new THREE.Vector2(e.clientX,e.clientY))>10) return;
+            const rect = renderer.domElement.getBoundingClientRect();
+            mouse.x = ((e.clientX - rect.left)/rect.width)*2 -1;
+            mouse.y = -((e.clientY - rect.top)/rect.height)*2 +1;
+            raycaster.setFromCamera(mouse, camera);
             
-            // Box
-            const b = new THREE.BoxHelper(m, 0xc58f68);
-            b.material.opacity=0.4; b.material.transparent=true; b.material.depthTest=false;
-            dimGroup.add(b);
+            const hits = raycaster.intersectObjects(scene.children, true);
+            let target = null;
+            for(let h of hits) {
+                let p = h.object;
+                while(p) { if(p.userData?.isCab){target=p; break;} p=p.parent; }
+                if(target) break;
+            }
 
-            // Labels
-            const w = createLabel(c.width); w.position.copy(m.position); w.position.y += c.height/2+15;
-            const h = createLabel(c.height); h.position.copy(m.position); h.position.x -= c.width/2+15;
-            const d = createLabel(c.depth); d.position.copy(m.position); d.position.x += c.width/2+15;
-            dimGroup.add(w,h,d);
+            if(target) {
+                const c = cabinets.find(x=>x.params.id===target.userData.id);
+                if(e.shiftKey) {
+                    const i = selection.indexOf(c);
+                    // LOGICA SELEZIONE MULTIPLA
+                    if(i>=0) { 
+                        const s=[...selection]; s.splice(i,1); select(s); 
+                    } else {
+                        select([...selection, c]);
+                    }
+                } else if(!selection.includes(c)) select([c]);
+            } else if(!hits.length || hits[0].object===floorMesh) {
+                if(!e.shiftKey) select([]);
+            }
         }
-    });
-}
 
-function updateTooltip() {
-    const tt = document.getElementById('tooltip');
-    if(selection.length === 1) {
-        const c = cabinets.find(x=>x.id===selection[0]);
-        const v = new THREE.Vector3(c.x, c.elevation+c.height, c.z).project(camera);
-        const x = (v.x*.5+.5)*window.innerWidth;
-        const y = (-(v.y*.5-.5)*window.innerHeight);
-        tt.style.left = x+'px'; tt.style.top = (y-30)+'px';
-        tt.innerHTML = `${c.width} x ${c.height} x ${c.depth}`;
-        tt.style.opacity = 1;
-    } else tt.style.opacity=0;
-}
+        function select(arr) {
+            selection = arr;
+            selectionHelpers.forEach(h=>scene.remove(h)); selectionHelpers=[];
+            selection.forEach(c => {
+                const b = new THREE.BoxHelper(c.mesh, 0xe07a5f);
+                scene.add(b); selectionHelpers.push(b);
+            });
+            
+            const ctrls = document.getElementById('virtual-controls');
+            if(selection.length > 0) {
+                ctrls.classList.add('visible');
+                // Sync GUI con l'ultimo selezionato
+                const p = selection[selection.length-1].params;
+                Object.assign(props, { type:p.type, color:p.color, width:p.width, height:p.height, depth:p.depth, elevation:p.elevation });
+                updateTooltip();
+            } else {
+                ctrls.classList.remove('visible');
+                document.getElementById('measure-tooltip').style.opacity = 0;
+            }
+            updateIngombro();
+        }
 
-// --- UTILS ---
-function generateRandom() {
-    cabinets = []; meshes.forEach(m=>scene.remove(m)); meshes=[]; select([]);
-    let cx = -120;
-    // Helper to add without selection
-    const addR = (t,w,h,d,e,x,z) => {
-        const p = {id:Math.random().toString(36), type:t, color:'white', width:w, height:h, depth:d, elevation:e, x, z, rotation:0, isOpen:false};
-        createCabinet(p, false);
-    };
-    addR('fridge', 60, 215, 60, 0, cx, 0); cx+=60;
-    addR('base', 60, 85, 60, 0, cx+30, 0); 
-    addR('wall', 60, 72, 35, 145, cx+30, -12); cx+=60;
-    addR('sink', 90, 85, 60, 0, cx+45, 0); cx+=90;
-    addR('cooktop', 90, 85, 60, 0, cx+45, 0); 
-    addR('wall', 90, 72, 35, 145, cx+45, -12);
-    
-    updateDims();
-}
+        function toggleIngombroMode() {
+            isIngombroMode = !isIngombroMode;
+            const btn = document.getElementById('btn-ingombro');
+            btn.innerText = isIngombroMode ? "📏 Ingombro: ON" : "📏 Ingombro: OFF";
+            btn.classList.toggle('active', isIngombroMode);
+            updateIngombro();
+        }
 
-function setupGUI() {
-    const gui = new GUI({ width: 260 }); gui.close();
-    const f = gui.addFolder('Modifica');
-    f.add(props, 'color', ['white','cream','oak','walnut','sand']).onChange(updateProps);
-    f.add(props, 'width', 10, 300).onChange(updateProps);
-    f.add(props, 'height', 10, 300).onChange(updateProps);
-    f.add(props, 'depth', 10, 200).onChange(updateProps);
-    f.add(props, 'elevation', 0, 300).onChange(updateProps);
-    f.add(props, 'wallColor', ['wall_cream','wall_taupe','wall_sage']).onChange(v => wall.material=getMat(v));
-}
+        function createLabel(txt) {
+            const cv = document.createElement('canvas'); const cx = cv.getContext('2d');
+            const fs = 36; cx.font = `bold ${fs}px Arial`;
+            const m = cx.measureText(txt); const w = m.width+20; const h = fs+20;
+            cv.width = w; cv.height = h;
+            cx.fillStyle = 'rgba(255, 255, 255, 0.9)'; cx.beginPath(); cx.roundRect(0,0,w,h,10); cx.fill();
+            cx.strokeStyle = '#c58f68'; cx.lineWidth=3; cx.stroke();
+            cx.fillStyle = '#3e3a36'; cx.font = `bold ${fs}px Arial`;
+            cx.textAlign = 'center'; cx.textBaseline = 'middle'; cx.fillText(txt, w/2, h/2);
+            const tex = new THREE.CanvasTexture(cv); tex.minFilter=THREE.LinearFilter;
+            const mat = new THREE.SpriteMaterial({ map:tex, depthTest:false, depthWrite:false });
+            const sp = new THREE.Sprite(mat); sp.scale.set(0.0004*w, 0.0004*h, 1); sp.renderOrder = 9999;
+            return sp;
+        }
 
-// --- EXPORT API ---
-window.app = {
-    add: spawn,
-    save: () => {
-        const b = new Blob([JSON.stringify(cabinets)], {type:'json'});
-        const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='geco_project.json'; a.click();
-    },
-    load: () => {
-        const i = document.createElement('input'); i.type='file';
-        i.onchange=e=>{
-            const r=new FileReader(); r.onload=v=>{
-                cabinets=[]; meshes.forEach(m=>scene.remove(m)); meshes=[]; select([]);
-                JSON.parse(v.target.result).forEach(p=>createCabinet(p,false));
-            }; r.readAsText(e.target.files[0]);
-        }; i.click();
-    },
-    random: generateRandom,
-    photo: () => { renderer.render(scene, camera); const a=document.createElement('a'); a.href=renderer.domElement.toDataURL(); a.download='render.png'; a.click(); },
-    toggleDims: () => { 
-        isDimMode=!isDimMode; 
-        document.getElementById('btn-dim').innerText = isDimMode ? "📏 Quote: ON" : "📏 Quote: OFF";
-        document.getElementById('btn-dim').classList.toggle('active', isDimMode);
-        updateDims(); 
-    },
-    move: (x,z) => {
-        selection.forEach(id => {
-            const c = cabinets.find(x=>x.id===id);
-            c.x += x*2; c.z += z*2;
-            const m = meshes.find(x=>x.userData.id===id);
-            m.position.set(c.x, c.elevation, c.z);
-        });
-        select(selection); // Refresh helpers
-    },
-    rotate: () => {
-        selection.forEach(id => {
-            const c = cabinets.find(x=>x.id===id);
-            c.rotation = (c.rotation+90)%360;
-            const m = meshes.find(x=>x.userData.id===id);
-            m.rotation.y = c.rotation * Math.PI/180;
-        });
-        select(selection);
-    },
-    door: () => {
-        selection.forEach(id => {
-            const c = cabinets.find(x=>x.id===id);
-            c.isOpen = !c.isOpen;
-        });
-        updateProps(); // Rebuild
-    },
-    del: deleteSel
-};
+        function updateIngombro() {
+            scene.remove(ingombroGroup); ingombroGroup = new THREE.Group(); scene.add(ingombroGroup);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xc58f68, opacity:0.5, transparent:true, depthTest:false });
 
-function animate() {
-    requestAnimationFrame(animate);
-    controls.update();
-    renderer.render(scene, camera);
-}
-}
-init();
-</script>
+            cabinets.forEach(c => {
+                // LOGICA FIXATA: Mostra se Modo ON oppure se l'oggetto è nell'array selezione
+                if (isIngombroMode || selection.includes(c)) {
+                    const b = new THREE.BoxHelper(c.mesh); b.material = lineMat; ingombroGroup.add(b);
+                    const lg = new THREE.Group(); lg.position.copy(c.mesh.position); lg.rotation.y = c.mesh.rotation.y;
+                    const p = c.params;
+                    const lw = createLabel(`${p.width}`); lw.position.set(0, p.height/2+15, p.depth/2);
+                    const lh = createLabel(`${p.height}`); lh.position.set(-p.width/2-15, p.height/2, p.depth/2);
+                    const ld = createLabel(`${p.depth}`); ld.position.set(p.width/2+15, p.height/2, 0);
+                    lg.add(lw, lh, ld); ingombroGroup.add(lg);
+                }
+            });
+        }
+
+        function generateRandomKitchen() {
+            cabinets.forEach(c => scene.remove(c.mesh)); cabinets = []; select([]); scene.remove(ingombroGroup);
+            let cx = -120; 
+            createCabinet({ id:crypto.randomUUID(), type:'fridge', color:'cream', width:60, height:215, depth:60, elevation:0, rotation:0, x:cx, z:0, isOpen:false }); cx += 60;
+            createCabinet({ id:crypto.randomUUID(), type:'base', color:'cream', width:60, height:85, depth:60, elevation:0, rotation:0, x:cx + 30, z:0, isOpen:false });
+            createCabinet({ id:crypto.randomUUID(), type:'wall', color:'cream', width:60, height:72, depth:35, elevation:145, rotation:0, x:cx + 30, z:-12, isOpen:false }); cx += 60;
+            createCabinet({ id:crypto.randomUUID(), type:'sink', color:'cream', width:90, height:85, depth:60, elevation:0, rotation:0, x:cx + 45, z:0, isOpen:false }); cx += 90;
+            createCabinet({ id:crypto.randomUUID(), type:'cooktop', color:'cream', width:90, height:85, depth:60, elevation:0, rotation:0, x:cx + 45, z:0, isOpen:false });
+            createCabinet({ id:crypto.randomUUID(), type:'wall', color:'cream', width:90, height:72, depth:35, elevation:145, rotation:0, x:cx + 45, z:-12, isOpen:false });
+            updateIngombro();
+        }
+
+        function saveToJSON() { const d=cabinets.map(c=>c.params); const b=new Blob([JSON.stringify(d)],{type:'application/json'}); const a=document.createElement('a'); a.href=URL.createObjectURL(b); a.download='GECO_Progetto.json'; a.click(); }
+        function loadFromJSON() { const i=document.createElement('input'); i.type='file'; i.onchange=e=>{const r=new FileReader(); r.onload=v=>{cabinets.forEach(c=>scene.remove(c.mesh)); cabinets=[]; select([]); JSON.parse(v.target.result).forEach(p=>createCabinet(p)); updateIngombro();}; r.readAsText(e.target.files[0]);}; i.click(); }
+        function takePhoto() { renderer.render(scene, camera); const a=document.createElement('a'); a.download='GECO_Render.png'; a.href=renderer.domElement.toDataURL('image/png'); a.click(); }
+
+        function updateTooltip() {
+            const t = document.getElementById('measure-tooltip');
+            // Tooltip mostra solo se c'è 1 oggetto per evitare caos a schermo
+            if(selection.length===1) {
+                const p = selection[0].params;
+                const v = new THREE.Vector3(p.x, p.elevation+p.height, p.z); v.project(camera);
+                const x = (v.x*.5+.5)*window.innerWidth; const y = (-(v.y*.5-.5)*window.innerHeight);
+                t.style.left=x+'px'; t.style.top=(y-30)+'px'; t.innerText=`L:${p.width} H:${p.height} P:${p.depth}`; t.style.opacity=1;
+            } else t.style.opacity=0;
+        }
+
+        function setupGUI() {
+            // Rebuild selection for color/size changes
+            const apply = () => { selection.forEach(c=>Object.assign(c.params, props)); if(selection.length) rebuildCabinet(selection[0]); }; 
+            const f1 = gui.addFolder('Ambiente');
+            f1.add(props, 'showFloor').onChange(v=>floorMesh.visible=v);
+            f1.add(props, 'showWall').onChange(v=>wallMesh.visible=v);
+            f1.add(props, 'wallColor', {Crema:'wall_cream', Tortora:'wall_taupe', Salvia:'wall_sage'}).onChange(v=>{wallMesh.material=getMaterial(v)});
+            
+            const f = gui.addFolder('Parametri Modulo');
+            // AGGIUNTO 'Bianco':'white'
+            ctrls.c = f.add(props, 'color', {Crema:'cream', Bianco:'white', Rovere:'oak', Noce:'walnut', Sabbia:'sand'}).onChange(apply);
+            ctrls.w = f.add(props, 'width', 1, 300).onChange(apply);
+            ctrls.h = f.add(props, 'height', 1, 300).onChange(apply);
+            ctrls.d = f.add(props, 'depth', 1, 200).onChange(apply);
+            ctrls.e = f.add(props, 'elevation', 0, 300).onChange(apply);
+            f.add(props, 'deleteSel').name('Elimina');
+        }
+
+        function onResize() {
+            const asp = window.innerWidth / window.innerHeight;
+            const d = window.innerWidth < 768 ? 240 : 160;
+            camera.left = -d*asp; camera.right = d*asp; camera.top = d; camera.bottom = -d;
+            camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); updateTooltip(); }
+    </script>
 </body>
 </html>
