@@ -2,21 +2,21 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Kitchen Builder Ultimate - Cream UX</title>
+    <title>Kitchen Builder - GECO.srl Edition</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* --- DESIGN SYSTEM (Cream & Glass) --- */
+        /* --- DESIGN SYSTEM --- */
         :root { 
-            --primary: #c58f68; /* Legno caldo */
+            --primary: #c58f68; 
             --dark: #3e3a36; 
             --bg-gradient: linear-gradient(135deg, #fdfbf7 0%, #f3efe7 100%);
-            --glass: rgba(255, 255, 255, 0.85);
+            --glass: rgba(255, 255, 255, 0.9);
             --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-            --shadow: 0 8px 32px rgba(62, 58, 54, 0.1);
+            --shadow: 0 10px 40px rgba(62, 58, 54, 0.15);
             --accent: #e07a5f;
         }
 
-        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-gradient); touch-action: none; }
+        body { margin: 0; overflow: hidden; font-family: 'Segoe UI', system-ui, sans-serif; background: var(--bg-gradient); touch-action: none; user-select: none; -webkit-user-select: none; }
         
         /* LOADER */
         #loader {
@@ -24,99 +24,102 @@
             background: #fdfbf7; display: flex; flex-direction: column;
             justify-content: center; align-items: center; transition: opacity 0.6s;
         }
-        .loader-icon { font-size: 40px; animation: bounce 1s infinite; margin-bottom: 15px; }
-        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }
+        .loader-icon { font-size: 50px; animation: bounce 1s infinite; margin-bottom: 10px; }
+        .loader-text { font-size: 16px; font-weight: 600; color: #555; letter-spacing: 2px; }
+        .loader-sub { font-size: 12px; font-weight: 700; color: var(--primary); margin-top: 5px; opacity: 0.8; }
+        @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-15px); } }
 
         /* UI CONTAINER */
         #ui-layer { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
 
-        /* --- TOOLBAR (BOTTOM/SIDE) --- */
+        /* --- TOOLBAR --- */
         #toolbar {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 90%; max-width: 800px;
-            display: flex; gap: 12px; pointer-events: auto;
+            width: 95%; max-width: 850px;
+            display: flex; gap: 10px; pointer-events: auto;
             overflow-x: auto; padding: 10px;
-            /* Scrollbar invisibile */
-            scrollbar-width: none; -ms-overflow-style: none;
+            scrollbar-width: none; -ms-overflow-style: none; z-index: 100;
         }
         #toolbar::-webkit-scrollbar { display: none; }
 
         .panel {
-            background: var(--glass); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-            border: var(--glass-border); border-radius: 16px; padding: 12px;
+            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            border: var(--glass-border); border-radius: 18px; padding: 12px;
             box-shadow: var(--shadow);
             display: flex; flex-direction: column; gap: 8px;
             min-width: max-content;
-            transition: transform 0.2s;
         }
         
         .panel-title { 
-            font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: #8d7f75; 
-            font-weight: 700; border-bottom: 1px solid rgba(0,0,0,0.05); padding-bottom: 4px; margin-bottom: 4px;
+            font-size: 11px; text-transform: uppercase; letter-spacing: 1px; color: #8d7f75; 
+            font-weight: 800; border-bottom: 1px solid rgba(0,0,0,0.06); padding-bottom: 5px; margin-bottom: 2px;
         }
 
-        .btn-row { display: flex; gap: 6px; }
+        .btn-row { display: flex; gap: 8px; }
 
         .btn {
-            background: rgba(255,255,255,0.6); border: 1px solid rgba(0,0,0,0.05);
-            color: var(--dark); padding: 8px 14px; border-radius: 8px;
+            background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.08);
+            color: var(--dark); padding: 10px 16px; border-radius: 10px;
             font-size: 13px; font-weight: 600; cursor: pointer;
             display: flex; align-items: center; gap: 6px;
-            transition: all 0.2s; white-space: nowrap;
+            transition: all 0.15s; white-space: nowrap;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
-        .btn:hover { background: #fff; transform: translateY(-2px); box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
-        .btn:active { transform: scale(0.96); }
-        .btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-accent { color: var(--accent); background: rgba(224, 122, 95, 0.1); }
-        .btn-accent:hover { background: var(--accent); color: white; }
-
-        /* --- CONTROLLI VIRTUALI (Floating) --- */
+        .btn:active { transform: scale(0.95); background: var(--primary); color: white; }
+        .btn.active { background: var(--primary); color: white; border-color: var(--primary); box-shadow: 0 4px 12px rgba(197, 143, 104, 0.4); }
+        .btn-accent { color: var(--accent); background: rgba(224, 122, 95, 0.1); border-color: rgba(224, 122, 95, 0.2); }
+        
+        /* --- D-PAD & CONTROLLI (Migliorati) --- */
         #virtual-controls {
-            position: absolute; right: 20px; bottom: 180px; /* Sopra la toolbar */
-            display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
+            position: absolute; right: 20px; bottom: 160px; /* Alzato per non coprire toolbar */
+            display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
             pointer-events: none; opacity: 0; transition: opacity 0.3s, transform 0.3s;
-            transform: translateY(20px);
+            transform: translateY(20px); z-index: 90;
         }
         #virtual-controls.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
         .d-pad { 
-            background: var(--glass); padding: 8px; border-radius: 50%; 
-            display: grid; grid-template-columns: repeat(3, 40px); gap: 4px; 
-            box-shadow: var(--shadow); backdrop-filter: blur(10px);
+            background: rgba(255, 255, 255, 0.6); padding: 5px; border-radius: 50%; 
+            display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px);
+            gap: 5px; 
+            backdrop-filter: blur(8px); box-shadow: var(--shadow);
         }
+        /* Layout a croce */
+        .d-pad button:nth-child(1) { grid-column: 2; grid-row: 1; } /* UP */
+        .d-pad button:nth-child(2) { grid-column: 1; grid-row: 2; } /* LEFT */
+        .d-pad button:nth-child(3) { grid-column: 2; grid-row: 2; } /* CENTER (Hidden) */
+        .d-pad button:nth-child(4) { grid-column: 3; grid-row: 2; } /* RIGHT */
+        .d-pad button:nth-child(5) { grid-column: 2; grid-row: 3; } /* DOWN */
+
         .ctrl-btn {
-            width: 40px; height: 40px; border-radius: 10px; border: none;
-            background: rgba(255,255,255,0.5); color: var(--dark);
-            font-size: 18px; display: flex; align-items: center; justify-content: center;
-            cursor: pointer; transition: background 0.2s;
+            width: 100%; height: 100%; border-radius: 12px; border: none;
+            background: #fff; color: var(--dark);
+            font-size: 20px; display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            transition: transform 0.1s, background 0.1s;
         }
-        .ctrl-btn:active { background: var(--primary); color: white; }
-        .action-row { display: flex; gap: 8px; margin-top: 5px; }
-        .btn-del { background: #ffebeb; color: #d63031; }
+        .ctrl-btn:active { background: var(--primary); color: white; transform: scale(0.9); }
+        .ctrl-placeholder { visibility: hidden; }
+
+        .action-row { display: flex; gap: 10px; margin-right: 10px; }
+        .btn-round { width: 50px; height: 50px; border-radius: 50%; }
+        .btn-del { background: #fff0f0; color: #d63031; }
         .btn-del:active { background: #d63031; color: white; }
 
-        /* --- NOTIFICHE & TOOLTIP --- */
+        /* --- NOTIFICHE --- */
         #measure-tooltip {
             position: absolute; top: 0; left: 0;
-            background: rgba(44, 44, 44, 0.9); color: white;
-            padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600;
+            background: rgba(44, 44, 44, 0.95); color: white;
+            padding: 6px 12px; border-radius: 20px; font-size: 12px; font-weight: 700;
             pointer-events: none; opacity: 0; transform: translate(-50%, -100%);
-            margin-top: -10px; white-space: nowrap; z-index: 2000;
-        }
-        #toast {
-            position: absolute; top: 20px; left: 50%; transform: translateX(-50%);
-            background: var(--dark); color: white; padding: 10px 20px; border-radius: 30px;
-            font-size: 13px; opacity: 0; transition: opacity 0.3s; pointer-events: none;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+            margin-top: -15px; white-space: nowrap; z-index: 2000;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
         }
 
         /* MEDIA QUERIES */
         @media (min-width: 769px) {
-            #toolbar { 
-                bottom: auto; top: 20px; left: 20px; transform: none; 
-                flex-direction: column; width: auto; max-height: 90vh; 
-            }
-            .panel { width: 220px; }
+            #toolbar { bottom: auto; top: 20px; left: 20px; transform: none; flex-direction: column; width: auto; max-height: 90vh; }
+            .panel { width: 240px; }
             .btn-row { flex-wrap: wrap; }
             #virtual-controls { bottom: 40px; }
         }
@@ -135,11 +138,11 @@
 
     <div id="loader">
         <div class="loader-icon">🛋️</div>
-        <div style="letter-spacing: 2px; font-size: 14px; color:#555;">KITCHEN BUILDER</div>
+        <div class="loader-text">KITCHEN BUILDER</div>
+        <div class="loader-sub">GECO.srl</div>
     </div>
 
     <div id="ui-layer">
-        <div id="toast">Messaggio Sistema</div>
         
         <div id="toolbar">
             <!-- PROGETTO -->
@@ -157,7 +160,7 @@
                 <div class="panel-title">Strumenti</div>
                 <div class="btn-row">
                     <button class="btn" onclick="app.takePhoto()">📷 Foto</button>
-                    <button class="btn" id="btn-quotes" onclick="app.toggleQuotes()">📏 Quote: OFF</button>
+                    <button class="btn" id="btn-ingombro" onclick="app.toggleIngombro()">📏 Ingombro: OFF</button>
                 </div>
             </div>
 
@@ -175,20 +178,19 @@
             </div>
         </div>
 
-        <!-- PAD CONTROLLO -->
+        <!-- PAD CONTROLLO MIGLIORATO -->
         <div id="virtual-controls">
             <div class="d-pad">
-                <div></div>
-                <button class="ctrl-btn" onpointerdown="app.startMove(0, -1)" onpointerup="app.stopMove()">▲</button>
-                <div></div>
-                <button class="ctrl-btn" onpointerdown="app.startMove(-1, 0)" onpointerup="app.stopMove()">◄</button>
-                <button class="ctrl-btn" onpointerdown="app.startMove(0, 1)" onpointerup="app.stopMove()">▼</button>
-                <button class="ctrl-btn" onpointerdown="app.startMove(1, 0)" onpointerup="app.stopMove()">►</button>
+                <button class="ctrl-btn" onpointerdown="app.startMove(0, -1)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">▲</button> <!-- UP -->
+                <button class="ctrl-btn" onpointerdown="app.startMove(-1, 0)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">◄</button> <!-- LEFT -->
+                <div class="ctrl-placeholder"></div> <!-- CENTER -->
+                <button class="ctrl-btn" onpointerdown="app.startMove(1, 0)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">►</button> <!-- RIGHT -->
+                <button class="ctrl-btn" onpointerdown="app.startMove(0, 1)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">▼</button> <!-- DOWN -->
             </div>
             <div class="action-row">
-                <button class="ctrl-btn" onclick="app.rotate()">↻</button>
-                <button class="ctrl-btn" onclick="app.openDoor()">🚪</button>
-                <button class="ctrl-btn btn-del" onclick="app.delete()">🗑</button>
+                <button class="ctrl-btn btn-round" onclick="app.rotate()">↻</button>
+                <button class="ctrl-btn btn-round" onclick="app.openDoor()">🚪</button>
+                <button class="ctrl-btn btn-round btn-del" onclick="app.delete()">🗑</button>
             </div>
         </div>
 
@@ -200,7 +202,7 @@
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-        // --- SISTEMA TEXTURE ---
+        // --- CLASSE TEXTURE ---
         class TextureManager {
             constructor() { this.cache = {}; }
             getWood(hex) {
@@ -232,13 +234,13 @@
             }
         }
 
-        // --- VARIABILI GLOBALI ---
+        // --- GLOBALS ---
         let scene, camera, renderer, controls;
         let raycaster, mouse, texManager;
         let cabinets = [], selection = [], selectionHelpers = [];
-        let quoteGroup = null;
+        let ingombroGroup = null;
         let floorMesh, wallMesh;
-        let isQuotesMode = false;
+        let isIngombroMode = false;
         let moveInterval = null;
         let mouseDownPos = new THREE.Vector2();
 
@@ -250,18 +252,18 @@
             deleteSel: () => deleteSelection()
         };
 
-        const gui = new GUI({ title: 'Dettagli', width: 260 }); 
+        const gui = new GUI({ title: 'GECO Settings', width: 260 }); 
         gui.close();
         const ctrls = {};
 
-        // --- PUBLIC API ---
+        // --- API PUBBLICA ---
         window.app = {
             spawn: (t) => linearSpawn(t),
             saveProject: saveToJSON,
             loadProject: loadFromJSON,
             generateRandom: generateRandomKitchen,
             takePhoto: takePhoto,
-            toggleQuotes: toggleQuotesMode,
+            toggleIngombro: toggleIngombroMode,
             startMove: (x, z) => { moveSelection(x, z); moveInterval = setInterval(()=>moveSelection(x,z), 100); },
             stopMove: () => clearInterval(moveInterval),
             rotate: () => rotateSelection(),
@@ -276,14 +278,14 @@
 
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xfcfbf4); 
-            scene.fog = new THREE.Fog(0xfcfbf4, 400, 1500);
+            scene.fog = new THREE.Fog(0xfcfbf4, 300, 1500);
 
             const aspect = window.innerWidth / window.innerHeight;
-            // ZOOM IN: Valore 'd' ridotto per avvicinare la camera
-            const d = window.innerWidth < 768 ? 260 : 200; 
+            // ZOOM IN ANCORA MAGGIORE (Valore 'd' ridotto a 170)
+            const d = window.innerWidth < 768 ? 240 : 170; 
             camera = new THREE.OrthographicCamera(-d*aspect, d*aspect, d, -d, 1, 4000);
             camera.position.set(300, 300, 300); 
-            camera.lookAt(0, 40, 0);
+            camera.lookAt(0, 50, 0);
 
             renderer = new THREE.WebGLRenderer({ antialias: true, preserveDrawingBuffer: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
@@ -295,24 +297,23 @@
             // LUCI
             const amb = new THREE.AmbientLight(0xfff5e6, 0.75);
             scene.add(amb);
-            const sun = new THREE.DirectionalLight(0xffffff, 0.6);
+            const sun = new THREE.DirectionalLight(0xffffff, 0.65);
             sun.position.set(150, 400, 200);
             sun.castShadow = true;
             sun.shadow.mapSize.set(1024, 1024);
             sun.shadow.bias = -0.0005;
             scene.add(sun);
 
-            // CONTROLLI
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true; 
             controls.dampingFactor = 0.08;
-            controls.maxPolarAngle = Math.PI / 2; // Niente sotto terra
-            controls.target.set(0, 40, 0);
+            controls.maxPolarAngle = Math.PI / 2;
+            controls.target.set(0, 50, 0);
 
             raycaster = new THREE.Raycaster();
             mouse = new THREE.Vector2();
-            quoteGroup = new THREE.Group();
-            scene.add(quoteGroup);
+            ingombroGroup = new THREE.Group();
+            scene.add(ingombroGroup);
 
             createEnv();
             setupGUI();
@@ -321,7 +322,9 @@
             renderer.domElement.addEventListener('pointerdown', e => mouseDownPos.set(e.clientX, e.clientY));
             renderer.domElement.addEventListener('pointerup', onPointerUp);
 
+            // CARICAMENTO INIZIALE SCENA COMPLETA
             setTimeout(() => {
+                generateRandomKitchen(); // Genera cucina al posto del vuoto
                 document.getElementById('loader').style.opacity = 0;
                 setTimeout(() => document.getElementById('loader').remove(), 600);
             }, 800);
@@ -345,25 +348,22 @@
         }
 
         function createEnv() {
-            // Muro: Spostato vicino ai mobili (z = -32)
             const w = new THREE.Mesh(new THREE.BoxGeometry(config.gridSize, 500, 10), getMaterial('wall_cream'));
             w.position.set(0, 250, -35); w.receiveShadow = true; scene.add(w);
             wallMesh = w;
 
-            // Pavimento: Parte dal muro in poi
             const f = new THREE.Mesh(new THREE.PlaneGeometry(config.gridSize, config.gridSize/2), texManager.getStone('#e8e4dc'));
             f.rotation.x = -Math.PI/2; 
             f.position.set(0, -0.1, (config.gridSize/4) - 30);
             f.receiveShadow = true; scene.add(f);
             floorMesh = f;
             
-            // Griglia decorativa
             const g = new THREE.GridHelper(config.gridSize, 40, 0xd4a373, 0xeaddcf);
             g.position.set(0, 0.1, (config.gridSize/4) - 30); g.material.opacity=0.3; g.material.transparent=true;
             scene.add(g);
         }
 
-        // --- LOGICA MODULI ---
+        // --- SPAWN E COSTRUZIONE ---
         function linearSpawn(type) {
             const defs = { 
                 base:[85,0,60], sink:[85,0,60], cooktop:[85,0,60], 
@@ -381,7 +381,6 @@
                 const lp = last.params;
                 if(!['led','glass'].includes(lp.color)) col = lp.color;
                 
-                // Calcolo posizione successiva semplice
                 const rad = lp.rotation * (Math.PI/180);
                 const dist = (lp.width/2) + (w/2);
                 tx = lp.x + Math.cos(rad) * dist;
@@ -404,7 +403,7 @@
             const obj = { mesh, params:p };
             cabinets.push(obj);
             if(sel) select([obj]);
-            updateQuotes(); // Forza aggiornamento quote
+            updateIngombro(); // Aggiorna etichette
         }
 
         function rebuildCabinet(cab) {
@@ -424,30 +423,25 @@
             const body = p.height - toe - top;
             const mat = getMaterial(p.color);
 
-            // Box principale
             const box = new THREE.Mesh(new THREE.BoxGeometry(p.width, body, p.depth), mat);
             box.position.y = toe + body/2;
             box.castShadow = true; box.receiveShadow = true;
             if(mat.map) mat.map.repeat.set(p.width/100, body/100);
             grp.add(box);
 
-            // Top
             if(top>0) {
                 const t = new THREE.Mesh(new THREE.BoxGeometry(p.width, top, p.depth+2), getMaterial('top'));
                 t.position.set(0, toe+body+top/2, 1); t.castShadow = true; grp.add(t);
             }
-            // Zoccolo
             if(toe>0) {
                 const k = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, toe, p.depth-5), getMaterial('kick'));
                 k.position.set(0, toe/2, -2.5); grp.add(k);
             }
 
-            // Dettagli
             if(p.type==='fridge') {
                 const f = new THREE.Mesh(new THREE.BoxGeometry(p.width-2, p.height-2, 2), mat);
                 f.position.set(0, p.height/2, p.depth/2+1); grp.add(f);
             } else if (p.type !== 'fridge') {
-                // Ante
                 const dg = new THREE.Group(); dg.position.set(0, toe+body/2, p.depth/2+1);
                 const is2 = p.width >= 70; const dw = is2 ? (p.width/2)-0.2 : p.width-0.4;
                 if(is2) {
@@ -467,14 +461,12 @@
                 const s = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 15, p.depth-15), getMaterial('steel'));
                 s.position.set(0, toe+body, 0); 
                 const tap = new THREE.Mesh(new THREE.CylinderGeometry(1,1,15), getMaterial('steel'));
-                tap.position.set(0, toe+body+8, -10); tap.rotation.x=0.3;
-                grp.add(s, tap);
+                tap.position.set(0, toe+body+8, -10); tap.rotation.x=0.3; grp.add(s, tap);
             }
             if(p.type==='cooktop') {
                 const c = new THREE.Mesh(new THREE.BoxGeometry(p.width-15, 1, p.depth-15), getMaterial('black'));
                 c.position.set(0, toe+body+top+0.5, 0); grp.add(c);
             }
-
             return grp;
         }
 
@@ -482,11 +474,10 @@
             const g=new THREE.Group();
             const p=new THREE.Mesh(new THREE.BoxGeometry(w, h, 2), m); g.add(p);
             const hn=new THREE.Mesh(new THREE.BoxGeometry(1, 15, 1), getMaterial('steel'));
-            hn.position.set(dir>0 ? -w/2+4 : w/2-4, 5, 2); g.add(hn);
-            return g;
+            hn.position.set(dir>0 ? -w/2+4 : w/2-4, 5, 2); g.add(hn); return g;
         }
 
-        // --- GESTIONE AZIONI ---
+        // --- AZIONI ---
         function moveSelection(dx, dz) {
             if(!selection.length) return;
             const s = config.step;
@@ -496,7 +487,7 @@
             });
             selectionHelpers.forEach(h=>h.update());
             updateTooltip();
-            updateQuotes(); // Fondamentale per vedere le quote muoversi
+            updateIngombro(); // Aggiornamento fluido
         }
 
         function rotateSelection() {
@@ -506,13 +497,13 @@
                 c.mesh.rotation.y = c.params.rotation * (Math.PI/180);
             });
             selectionHelpers.forEach(h=>h.update());
-            updateQuotes();
+            updateIngombro();
         }
 
         function deleteSelection() {
             selection.forEach(c => { scene.remove(c.mesh); cabinets=cabinets.filter(x=>x!==c); });
             select([]);
-            updateQuotes(); // Ridisegna quote senza l'oggetto eliminato
+            updateIngombro();
         }
 
         function onPointerUp(e) {
@@ -553,7 +544,6 @@
             const ctrls = document.getElementById('virtual-controls');
             if(selection.length) {
                 ctrls.classList.add('visible');
-                // Sync GUI
                 const p = selection[0].params;
                 Object.assign(props, { type:p.type, color:p.color, width:p.width });
                 updateTooltip();
@@ -561,26 +551,28 @@
                 ctrls.classList.remove('visible');
                 document.getElementById('measure-tooltip').style.opacity = 0;
             }
+            
+            // AGGIORNAMENTO DINAMICO QUOTE QUANDO SELEZIONO
+            updateIngombro();
         }
 
-        // --- SISTEMA QUOTE PERFETTO ---
-        function toggleQuotesMode() {
-            isQuotesMode = !isQuotesMode;
-            const btn = document.getElementById('btn-quotes');
-            btn.innerText = isQuotesMode ? "📏 Quote: ON" : "📏 Quote: OFF";
-            btn.classList.toggle('active', isQuotesMode);
-            updateQuotes();
+        // --- SISTEMA INGOMBRO (Quote) ---
+        function toggleIngombroMode() {
+            isIngombroMode = !isIngombroMode;
+            const btn = document.getElementById('btn-ingombro');
+            btn.innerText = isIngombroMode ? "📏 Ingombro: ON" : "📏 Ingombro: OFF";
+            btn.classList.toggle('active', isIngombroMode);
+            updateIngombro();
         }
 
         function createLabel(txt) {
             const cv = document.createElement('canvas'); const cx = cv.getContext('2d');
-            const fs = 40; cx.font = `bold ${fs}px Arial`;
-            const m = cx.measureText(txt); const w = m.width+24; const h = fs+24;
+            const fs = 36; cx.font = `bold ${fs}px Arial`;
+            const m = cx.measureText(txt); const w = m.width+20; const h = fs+20;
             cv.width = w; cv.height = h;
 
-            // Pillola semitrasparente
-            cx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-            cx.beginPath(); cx.roundRect(0,0,w,h,12); cx.fill();
+            cx.fillStyle = 'rgba(255, 255, 255, 0.9)';
+            cx.beginPath(); cx.roundRect(0,0,w,h,10); cx.fill();
             cx.strokeStyle = '#c58f68'; cx.lineWidth=3; cx.stroke();
 
             cx.fillStyle = '#3e3a36'; cx.font = `bold ${fs}px Arial`;
@@ -588,93 +580,69 @@
             cx.fillText(txt, w/2, h/2);
 
             const tex = new THREE.CanvasTexture(cv); tex.minFilter=THREE.LinearFilter;
-            // depthTest: false -> Si vede SEMPRE, anche attraverso i muri
             const mat = new THREE.SpriteMaterial({ map:tex, depthTest:false, depthWrite:false });
             const sp = new THREE.Sprite(mat);
             sp.scale.set(0.0004*w, 0.0004*h, 1);
-            sp.renderOrder = 9999; // Disegna per ultimo (sopra tutto)
+            sp.renderOrder = 9999; 
             return sp;
         }
 
-        function updateQuotes() {
-            scene.remove(quoteGroup); 
-            quoteGroup = new THREE.Group();
-            
-            if(!isQuotesMode) return;
+        function updateIngombro() {
+            scene.remove(ingombroGroup); 
+            ingombroGroup = new THREE.Group();
+            scene.add(ingombroGroup);
 
-            const lineMat = new THREE.LineBasicMaterial({ color: 0xc58f68, opacity:0.4, transparent:true, depthTest:false });
-            scene.add(quoteGroup);
+            const lineMat = new THREE.LineBasicMaterial({ color: 0xc58f68, opacity:0.5, transparent:true, depthTest:false });
 
             cabinets.forEach(c => {
-                // Box
-                const b = new THREE.BoxHelper(c.mesh);
-                b.material = lineMat; quoteGroup.add(b);
+                // LOGICA: Mostra se Mode=ON OPPURE se il modulo è Selezionato
+                const isSelected = selection.includes(c);
+                if (isIngombroMode || isSelected) {
+                    // Box
+                    const b = new THREE.BoxHelper(c.mesh);
+                    b.material = lineMat; ingombroGroup.add(b);
 
-                // Etichette
-                const lg = new THREE.Group();
-                lg.position.copy(c.mesh.position);
-                lg.rotation.y = c.mesh.rotation.y;
+                    // Labels
+                    const lg = new THREE.Group();
+                    lg.position.copy(c.mesh.position);
+                    lg.rotation.y = c.mesh.rotation.y;
 
-                const p = c.params;
-                const lw = createLabel(`${p.width}`); lw.position.set(0, p.height/2+15, p.depth/2);
-                const lh = createLabel(`${p.height}`); lh.position.set(-p.width/2-15, p.height/2, p.depth/2);
-                const ld = createLabel(`${p.depth}`); ld.position.set(p.width/2+15, p.height/2, 0);
+                    const p = c.params;
+                    const lw = createLabel(`${p.width}`); lw.position.set(0, p.height/2+15, p.depth/2);
+                    const lh = createLabel(`${p.height}`); lh.position.set(-p.width/2-15, p.height/2, p.depth/2);
+                    const ld = createLabel(`${p.depth}`); ld.position.set(p.width/2+15, p.height/2, 0);
 
-                lg.add(lw, lh, ld);
-                quoteGroup.add(lg);
+                    lg.add(lw, lh, ld);
+                    ingombroGroup.add(lg);
+                }
             });
         }
 
-        // --- RANDOM FIXATO ---
+        // --- GENERATORE E UTILS ---
         function generateRandomKitchen() {
-            // 1. Pulizia totale
+            // Pulisci
             cabinets.forEach(c => scene.remove(c.mesh));
-            cabinets = [];
-            select([]);
-            scene.remove(quoteGroup);
+            cabinets = []; select([]); scene.remove(ingombroGroup);
 
-            // 2. Definizione layout con posizioni calcolate (no sovrapposizioni)
-            // Start X da sinistra
+            // Layout Iniziale Standard
             let cx = -120; 
-
-            // Frigo
             createCabinet({ id:crypto.randomUUID(), type:'fridge', color:'cream', width:60, height:215, depth:60, elevation:0, rotation:0, x:cx, z:0, isOpen:false });
-            cx += 60; // Avanza larghezza frigo
-
-            // Base 1 (Cassetti)
-            createCabinet({ id:crypto.randomUUID(), type:'base', color:'cream', width:60, height:85, depth:60, elevation:0, rotation:0, x:cx + 30, z:0, isOpen:false }); // +30 perché la pos è al centro (60/2)
-            
-            // Pensile sopra Base 1
+            cx += 60;
+            createCabinet({ id:crypto.randomUUID(), type:'base', color:'cream', width:60, height:85, depth:60, elevation:0, rotation:0, x:cx + 30, z:0, isOpen:false });
             createCabinet({ id:crypto.randomUUID(), type:'wall', color:'cream', width:60, height:72, depth:35, elevation:145, rotation:0, x:cx + 30, z:-12, isOpen:false });
             cx += 60;
-
-            // Lavello
             createCabinet({ id:crypto.randomUUID(), type:'sink', color:'cream', width:90, height:85, depth:60, elevation:0, rotation:0, x:cx + 45, z:0, isOpen:false });
             cx += 90;
-
-            // Fuochi
             createCabinet({ id:crypto.randomUUID(), type:'cooktop', color:'cream', width:90, height:85, depth:60, elevation:0, rotation:0, x:cx + 45, z:0, isOpen:false });
-            
-            // Cappa/Pensile sopra fuochi
             createCabinet({ id:crypto.randomUUID(), type:'wall', color:'cream', width:90, height:72, depth:35, elevation:145, rotation:0, x:cx + 45, z:-12, isOpen:false });
             
-            // 3. Update
-            updateQuotes();
-            showToast("Cucina Random Generata!");
-        }
-
-        // --- UTILS ---
-        function showToast(msg) {
-            const t = document.getElementById('toast');
-            t.innerText = msg; t.style.opacity = 1;
-            setTimeout(() => t.style.opacity = 0, 2000);
+            updateIngombro();
         }
 
         function saveToJSON() { 
             const d = cabinets.map(c=>c.params); 
             const b = new Blob([JSON.stringify(d)],{type:'application/json'}); 
-            const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='progetto.json'; a.click();
-            showToast("Progetto salvato!");
+            const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='GECO_Progetto.json'; a.click();
         }
         
         function loadFromJSON() { 
@@ -684,8 +652,7 @@
                 r.onload = v => {
                     cabinets.forEach(c=>scene.remove(c.mesh)); cabinets=[]; select([]);
                     JSON.parse(v.target.result).forEach(p=>createCabinet(p));
-                    updateQuotes();
-                    showToast("Progetto caricato!");
+                    updateIngombro();
                 };
                 r.readAsText(e.target.files[0]);
             }; 
@@ -694,7 +661,7 @@
 
         function takePhoto() { 
             renderer.render(scene, camera); 
-            const a = document.createElement('a'); a.download='render.png'; 
+            const a = document.createElement('a'); a.download='GECO_Render.png'; 
             a.href = renderer.domElement.toDataURL('image/png'); a.click(); 
         }
 
@@ -707,12 +674,12 @@
                 const x = (v.x * .5 + .5) * window.innerWidth;
                 const y = (-(v.y * .5 - .5) * window.innerHeight);
                 t.style.left = x + 'px'; t.style.top = (y-30) + 'px';
-                t.innerText = `${p.width}x${p.height}x${p.depth}`; t.style.opacity=1;
+                t.innerText = `L:${p.width} H:${p.height} P:${p.depth}`; t.style.opacity=1;
             } else t.style.opacity=0;
         }
 
         function setupGUI() {
-            const apply = () => { selection.forEach(c=>Object.assign(c.params, props)); updateSelectionVisual(); };
+            const apply = () => { selection.forEach(c=>Object.assign(c.params, props)); rebuildCabinet(selection[0]); }; // Rebuild per vedere modifiche
             const f = gui.addFolder('Parametri');
             ctrls.c = f.add(props, 'color', {Crema:'cream', Rovere:'oak', Noce:'walnut', Sabbia:'sand'}).onChange(apply);
             ctrls.w = f.add(props, 'width', 1, 200).onChange(apply);
@@ -721,7 +688,7 @@
 
         function onResize() {
             const asp = window.innerWidth / window.innerHeight;
-            const d = window.innerWidth < 768 ? 260 : 200;
+            const d = window.innerWidth < 768 ? 240 : 170;
             camera.left = -d*asp; camera.right = d*asp; camera.top = d; camera.bottom = -d;
             camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
         }
