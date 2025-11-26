@@ -2,7 +2,7 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Kitchen Builder - GECO.srl Ultimate</title>
+    <title>Kitchen Builder - GECO.srl White Edition</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
         /* --- DESIGN SYSTEM --- */
@@ -10,7 +10,7 @@
             --primary: #c58f68; 
             --dark: #3e3a36; 
             --bg-gradient: linear-gradient(135deg, #fdfbf7 0%, #f3efe7 100%);
-            --glass: rgba(255, 255, 255, 0.9);
+            --glass: rgba(255, 255, 255, 0.95);
             --glass-border: 1px solid rgba(255, 255, 255, 0.6);
             --shadow: 0 10px 40px rgba(62, 58, 54, 0.15);
             --accent: #e07a5f;
@@ -32,7 +32,7 @@
         /* UI LAYER */
         #ui-layer { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: space-between; overflow: hidden; }
 
-        /* --- TOOLBAR INFERIORE --- */
+        /* TOOLBAR */
         #toolbar {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
             width: 95%; max-width: 900px;
@@ -43,7 +43,7 @@
         #toolbar::-webkit-scrollbar { display: none; }
 
         .panel {
-            background: var(--glass); backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
             border: var(--glass-border); border-radius: 18px; padding: 12px;
             box-shadow: var(--shadow);
             display: flex; flex-direction: column; gap: 8px;
@@ -66,10 +66,10 @@
             box-shadow: 0 2px 5px rgba(0,0,0,0.02);
         }
         .btn:active { transform: scale(0.95); background: var(--primary); color: white; }
+        .btn.active { background: var(--primary); color: white; border-color: var(--primary); }
         .btn-accent { color: var(--accent); background: rgba(224, 122, 95, 0.1); border-color: rgba(224, 122, 95, 0.2); }
-        .btn.active { background: var(--primary); color: white; }
 
-        /* --- D-PAD --- */
+        /* D-PAD */
         #virtual-controls {
             position: absolute; right: 20px; bottom: 160px;
             display: flex; flex-direction: column; align-items: flex-end; gap: 15px;
@@ -79,7 +79,7 @@
         #virtual-controls.visible { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
         .d-pad { 
-            background: rgba(255, 255, 255, 0.6); padding: 5px; border-radius: 50%; 
+            background: rgba(255, 255, 255, 0.7); padding: 5px; border-radius: 50%; 
             display: grid; grid-template-columns: repeat(3, 50px); grid-template-rows: repeat(3, 50px);
             gap: 5px; backdrop-filter: blur(8px); box-shadow: var(--shadow);
         }
@@ -99,7 +99,7 @@
         .btn-round { width: 50px; height: 50px; border-radius: 50%; }
         .btn-del { background: #fff0f0; color: #d63031; }
 
-        /* --- TOOLTIP --- */
+        /* TOOLTIP & TOAST */
         #measure-tooltip {
             position: absolute; top: 0; left: 0;
             background: rgba(44, 44, 44, 0.95); color: white;
@@ -123,7 +123,7 @@
 <body>
 
     <div id="loader">
-        <div class="loader-icon">🛋️</div>
+        <div class="loader-icon">🦎</div>
         <div class="loader-text">KITCHEN BUILDER</div>
         <div class="loader-sub">GECO.srl</div>
     </div>
@@ -150,7 +150,7 @@
                 </div>
             </div>
 
-            <!-- MODULI CUCINA -->
+            <!-- CUCINA -->
             <div class="panel">
                 <div class="panel-title">Cucina</div>
                 <div class="btn-row" style="flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px;">
@@ -163,7 +163,7 @@
                 </div>
             </div>
 
-            <!-- EXTRA & DECOR -->
+            <!-- EXTRA -->
             <div class="panel">
                 <div class="panel-title">Extra & Decor</div>
                 <div class="btn-row" style="flex-wrap: nowrap; overflow-x: auto; padding-bottom: 5px;">
@@ -177,7 +177,7 @@
             </div>
         </div>
 
-        <!-- D-PAD -->
+        <!-- CONTROLLI -->
         <div id="virtual-controls">
             <div class="d-pad">
                 <button class="ctrl-btn" onpointerdown="app.startMove(0, -1)" onpointerup="app.stopMove()" onpointerleave="app.stopMove()">▲</button>
@@ -207,8 +207,12 @@
                 const k='w_'+hex; if(this.cache[k])return this.cache[k];
                 const c=document.createElement('canvas');c.width=256;c.height=256;
                 const x=c.getContext('2d');x.fillStyle=hex;x.fillRect(0,0,256,256);
-                x.globalAlpha=0.06;
-                for(let i=0;i<30;i++){x.beginPath();x.moveTo(0,Math.random()*256);x.bezierCurveTo(80,Math.random()*256,170,Math.random()*256,256,Math.random()*256);x.strokeStyle='#6b5b4e';x.stroke();}
+                x.globalCompositeOperation='multiply'; x.globalAlpha=0.06;
+                for(let i=0;i<30;i++){
+                    x.beginPath();x.moveTo(0,Math.random()*256);
+                    x.bezierCurveTo(80,Math.random()*256,170,Math.random()*256,256,Math.random()*256);
+                    x.strokeStyle='#6b5b4e';x.stroke();
+                }
                 const m=new THREE.MeshStandardMaterial({map:new THREE.CanvasTexture(c),roughness:0.6,metalness:0.05});
                 this.cache[k]=m; return m;
             }
@@ -223,7 +227,7 @@
             }
         }
 
-        // --- GLOBALS ---
+        // --- VARIABILI GLOBALI ---
         let scene, camera, renderer, controls, raycaster, mouse, texManager;
         let cabinets = [], selection = [], selectionHelpers = [];
         let ingombroGroup = null, floorMesh, wallMesh;
@@ -234,7 +238,6 @@
             type: 'base', color: 'cream', width: 60, height: 85, depth: 60, elevation: 0,
             showFloor: true, showWall: true, wallColor: 'wall_cream',
             addBase:()=>linearSpawn('base'), addSink:()=>linearSpawn('sink'), addCook:()=>linearSpawn('cooktop'),
-            addBoardH:()=>linearSpawn('board_h'), addBoardV:()=>linearSpawn('board_v'), addLed:()=>linearSpawn('led'),
             deleteSel:()=>deleteSelection()
         };
 
@@ -258,11 +261,11 @@
             texManager = new TextureManager();
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0xfcfbf4);
-            scene.fog = new THREE.Fog(0xfcfbf4, 300, 1500);
+            scene.fog = new THREE.Fog(0xfcfbf4, 250, 1500); // Nebbia più vicina per fondere
 
             const asp = window.innerWidth / window.innerHeight;
-            // CAMERA VICINA (ZOOM)
-            const d = window.innerWidth < 768 ? 240 : 170;
+            // ZOOM CAMERA: Valore 'd' ridotto a 160 per inquadratura molto vicina
+            const d = window.innerWidth < 768 ? 220 : 160;
             camera = new THREE.OrthographicCamera(-d*asp, d*asp, d, -d, 1, 4000);
             camera.position.set(300, 300, 300);
             camera.lookAt(0, 50, 0);
@@ -304,7 +307,8 @@
 
         // --- MAT & ENV ---
         function getMaterial(n) {
-            const p = { cream:'#fbf6e9', oak:'#dcbba0', walnut:'#a0886f', sand:'#d4cbb3', kick:'#dcdcdc' };
+            // AGGIUNTO 'white' AL DIZIONARIO COLORI
+            const p = { cream:'#fbf6e9', white:'#ffffff', oak:'#dcbba0', walnut:'#a0886f', sand:'#d4cbb3', kick:'#dcdcdc' };
             if(p[n]) return texManager.getWood(p[n]);
             if(n==='glass') return new THREE.MeshPhysicalMaterial({ color:0xddeeff, transmission:0.7, transparent:true, opacity:0.3 });
             if(n==='led_light') return new THREE.MeshBasicMaterial({ color:0xfff4e0 });
@@ -330,13 +334,12 @@
             g.position.set(0, 0.1, (config.gridSize/4) - 30); g.material.opacity=0.3; g.material.transparent=true; scene.add(g);
         }
 
-        // --- LOGICA MODULI ---
+        // --- SPAWN E COSTRUZIONE ---
         function linearSpawn(type) {
             const defs = { 
                 base:[85,0,60], sink:[85,0,60], cooktop:[85,0,60], tall:[215,0,60], fridge:[215,0,60], wall:[72,145,35],
                 board_h:[4,0,30], board_v:[85,0,4], slatted:[240,0,2], door:[210,0,10], window:[120,100,10], led:[1,0,1]
             };
-            
             const [h, y, d] = defs[type] || [60,0,60];
             let w = (type==='door')?90:(type==='window'?120:(type==='slatted'?60:60));
             let tx=0, tz=0, trot=0, col=props.color;
@@ -377,7 +380,6 @@
             grp.position.set(p.x, p.elevation, p.z);
             grp.rotation.y = p.rotation * (Math.PI/180);
 
-            // LOGICA MODULI EXTRA
             if(p.type === 'led') {
                 const l = new THREE.Mesh(new THREE.BoxGeometry(p.width,1,1), getMaterial('led_light'));
                 const pl = new THREE.PointLight(0xfff4e0, 0.5, 100); pl.position.set(0,-5,0); l.add(pl);
@@ -415,7 +417,6 @@
                 return grp;
             }
 
-            // MODULI STANDARD
             const toe = (p.type==='wall'||p.type==='fridge'||p.type.startsWith('board')) ? 0 : 10;
             const top = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
             const body = p.height - toe - top;
@@ -519,8 +520,12 @@
                 const c = cabinets.find(x=>x.params.id===target.userData.id);
                 if(e.shiftKey) {
                     const i = selection.indexOf(c);
-                    if(i>=0) { const s=[...selection]; s.splice(i,1); select(s); }
-                    else select([...selection, c]);
+                    // LOGICA SELEZIONE MULTIPLA
+                    if(i>=0) { 
+                        const s=[...selection]; s.splice(i,1); select(s); 
+                    } else {
+                        select([...selection, c]);
+                    }
                 } else if(!selection.includes(c)) select([c]);
             } else if(!hits.length || hits[0].object===floorMesh) {
                 if(!e.shiftKey) select([]);
@@ -536,9 +541,10 @@
             });
             
             const ctrls = document.getElementById('virtual-controls');
-            if(selection.length) {
+            if(selection.length > 0) {
                 ctrls.classList.add('visible');
-                const p = selection[0].params;
+                // Sync GUI con l'ultimo selezionato
+                const p = selection[selection.length-1].params;
                 Object.assign(props, { type:p.type, color:p.color, width:p.width, height:p.height, depth:p.depth, elevation:p.elevation });
                 updateTooltip();
             } else {
@@ -576,7 +582,7 @@
             const lineMat = new THREE.LineBasicMaterial({ color: 0xc58f68, opacity:0.5, transparent:true, depthTest:false });
 
             cabinets.forEach(c => {
-                // MOSTRA SE: Mode=ON OR modulo Selezionato
+                // LOGICA FIXATA: Mostra se Modo ON oppure se l'oggetto è nell'array selezione
                 if (isIngombroMode || selection.includes(c)) {
                     const b = new THREE.BoxHelper(c.mesh); b.material = lineMat; ingombroGroup.add(b);
                     const lg = new THREE.Group(); lg.position.copy(c.mesh.position); lg.rotation.y = c.mesh.rotation.y;
@@ -607,6 +613,7 @@
 
         function updateTooltip() {
             const t = document.getElementById('measure-tooltip');
+            // Tooltip mostra solo se c'è 1 oggetto per evitare caos a schermo
             if(selection.length===1) {
                 const p = selection[0].params;
                 const v = new THREE.Vector3(p.x, p.elevation+p.height, p.z); v.project(camera);
@@ -616,23 +623,26 @@
         }
 
         function setupGUI() {
-            const apply = () => { selection.forEach(c=>Object.assign(c.params, props)); rebuildCabinet(selection[0]); }; 
+            // Rebuild selection for color/size changes
+            const apply = () => { selection.forEach(c=>Object.assign(c.params, props)); if(selection.length) rebuildCabinet(selection[0]); }; 
             const f1 = gui.addFolder('Ambiente');
             f1.add(props, 'showFloor').onChange(v=>floorMesh.visible=v);
             f1.add(props, 'showWall').onChange(v=>wallMesh.visible=v);
             f1.add(props, 'wallColor', {Crema:'wall_cream', Tortora:'wall_taupe', Salvia:'wall_sage'}).onChange(v=>{wallMesh.material=getMaterial(v)});
+            
             const f = gui.addFolder('Parametri Modulo');
-            ctrls.c = f.add(props, 'color', {Crema:'cream', Rovere:'oak', Noce:'walnut', Sabbia:'sand'}).onChange(apply);
+            // AGGIUNTO 'Bianco':'white'
+            ctrls.c = f.add(props, 'color', {Crema:'cream', Bianco:'white', Rovere:'oak', Noce:'walnut', Sabbia:'sand'}).onChange(apply);
             ctrls.w = f.add(props, 'width', 1, 300).onChange(apply);
             ctrls.h = f.add(props, 'height', 1, 300).onChange(apply);
             ctrls.d = f.add(props, 'depth', 1, 200).onChange(apply);
             ctrls.e = f.add(props, 'elevation', 0, 300).onChange(apply);
-            f.add(props, 'deleteSel');
+            f.add(props, 'deleteSel').name('Elimina');
         }
 
         function onResize() {
             const asp = window.innerWidth / window.innerHeight;
-            const d = window.innerWidth < 768 ? 240 : 170;
+            const d = window.innerWidth < 768 ? 240 : 160;
             camera.left = -d*asp; camera.right = d*asp; camera.top = d; camera.bottom = -d;
             camera.updateProjectionMatrix(); renderer.setSize(window.innerWidth, window.innerHeight);
         }
