@@ -2,93 +2,71 @@
 <html lang="it">
 <head>
     <meta charset="UTF-8">
-    <title>Kitchen Builder - Final Stable</title>
+    <title>Kitchen Builder - GECO</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <style>
-        /* --- STILE VISIVO --- */
-        :root { 
-            --primary: #c58f68; 
-            --dark: #3e3a36; 
-            --bg-gradient: linear-gradient(135deg, #fdfbf7 0%, #f3efe7 100%);
-            --glass: rgba(255, 255, 255, 0.95);
-            --glass-border: 1px solid rgba(255, 255, 255, 0.6);
-            --shadow: 0 10px 40px rgba(62, 58, 54, 0.15);
-        }
-
-        body { margin: 0; overflow: hidden; font-family: system-ui, sans-serif; background: var(--bg-gradient); user-select: none; touch-action: none; }
+        :root { --primary: #c58f68; --glass: rgba(255,255,255,0.95); --shadow: 0 8px 32px rgba(0,0,0,0.1); }
+        body { margin: 0; overflow: hidden; background: linear-gradient(135deg, #fdfbf7, #f3efe7); font-family: system-ui, sans-serif; user-select: none; touch-action: none; }
         
         #loader {
-            position: fixed; inset: 0; z-index: 9999;
-            background: #fdfbf7; display: flex; flex-direction: column;
-            justify-content: center; align-items: center; transition: opacity 0.5s;
+            position: fixed; inset: 0; background: #fdfbf7; z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s;
         }
-        .loader-text { font-size: 24px; font-weight: bold; color: var(--primary); margin-bottom: 10px; }
-        .loader-sub { font-size: 14px; color: #666; letter-spacing: 2px; }
+        .loader-txt { font-weight: 800; font-size: 24px; color: #444; letter-spacing: 2px; }
 
-        #ui-layer { position: absolute; inset: 0; pointer-events: none; display: flex; flex-direction: column; justify-content: flex-end; }
+        #ui-layer { position: absolute; inset: 0; pointer-events: none; }
 
         /* TOOLBAR */
         #toolbar {
             position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
-            width: 95%; max-width: 900px;
-            display: flex; gap: 10px; pointer-events: auto;
-            overflow-x: auto; padding: 10px; z-index: 100;
-            scrollbar-width: none;
+            width: 95%; max-width: 900px; display: flex; gap: 10px; pointer-events: auto;
+            overflow-x: auto; padding: 10px; z-index: 100; scrollbar-width: none;
         }
-        #toolbar::-webkit-scrollbar { display: none; }
-
         .panel {
-            background: var(--glass); backdrop-filter: blur(10px);
-            border: var(--glass-border); border-radius: 16px; padding: 12px;
-            box-shadow: var(--shadow); display: flex; flex-direction: column; gap: 6px;
-            min-width: max-content;
+            background: var(--glass); border-radius: 16px; padding: 10px;
+            box-shadow: var(--shadow); border: 1px solid rgba(255,255,255,0.5);
+            display: flex; flex-direction: column; gap: 5px; min-width: max-content;
         }
-        
-        .panel-label { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; margin-bottom: 4px; }
-        
-        .btn-group { display: flex; gap: 6px; }
+        .panel-head { font-size: 10px; text-transform: uppercase; color: #888; font-weight: 700; }
+        .btn-row { display: flex; gap: 5px; }
         .btn {
-            background: #fff; border: 1px solid #eee; color: var(--dark);
-            padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600;
-            cursor: pointer; display: flex; align-items: center; gap: 5px; white-space: nowrap;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05); transition: all 0.2s;
+            background: #fff; border: 1px solid #ddd; padding: 8px 12px; border-radius: 8px;
+            font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 5px;
+            transition: 0.2s; white-space: nowrap;
         }
         .btn:active { transform: scale(0.95); background: var(--primary); color: white; }
         .btn.active { background: var(--primary); color: white; border-color: var(--primary); }
-        .btn-accent { color: #e07a5f; background: rgba(224, 122, 95, 0.1); }
+        .btn-accent { background: rgba(224, 122, 95, 0.1); color: #d35400; }
 
-        /* D-PAD */
+        /* CONTROLS */
         #controls {
             position: absolute; right: 20px; bottom: 160px; pointer-events: auto;
             display: flex; flex-direction: column; align-items: flex-end; gap: 10px;
             opacity: 0; transform: translateY(20px); transition: 0.3s;
         }
         #controls.visible { opacity: 1; transform: translateY(0); }
-        
-        .pad-grid { 
-            display: grid; grid-template-columns: repeat(3, 45px); gap: 5px; 
+        .d-pad {
+            display: grid; grid-template-columns: repeat(3, 45px); gap: 5px;
             background: var(--glass); padding: 5px; border-radius: 50%; box-shadow: var(--shadow);
         }
-        .pad-btn {
-            width: 100%; height: 45px; border: none; background: white; border-radius: 8px;
-            font-size: 18px; cursor: pointer; display: flex; justify-content: center; align-items: center;
-        }
+        .pad-btn { width: 100%; height: 45px; border: none; background: #fff; border-radius: 8px; font-size: 18px; cursor: pointer; }
         .pad-btn:active { background: var(--primary); color: white; }
-        .pad-btn:nth-child(1) { grid-column: 2; } /* UP */
-        .pad-btn:nth-child(2) { grid-column: 1; } /* LEFT */
-        .pad-btn:nth-child(3) { grid-column: 3; } /* RIGHT */
-        .pad-btn:nth-child(4) { grid-column: 2; } /* DOWN */
+        .pad-btn:nth-child(1) { grid-column: 2; } 
+        .pad-btn:nth-child(2) { grid-column: 1; }
+        .pad-btn:nth-child(3) { grid-column: 3; }
+        .pad-btn:nth-child(4) { grid-column: 2; }
         
-        .actions { display: flex; gap: 8px; }
-        .act-btn { width: 45px; height: 45px; border-radius: 50%; border: none; background: white; font-size: 20px; cursor: pointer; box-shadow: var(--shadow); }
+        .actions { display: flex; gap: 10px; margin-right: 5px; }
+        .act-btn { width: 45px; height: 45px; border-radius: 50%; border: none; background: #fff; font-size: 20px; cursor: pointer; box-shadow: var(--shadow); }
         .btn-del { color: red; background: #fff5f5; }
 
         #tooltip {
-            position: absolute; top:0; left:0; background: rgba(30,30,30,0.9); color: white;
-            padding: 4px 8px; border-radius: 4px; font-size: 11px; pointer-events: none;
-            opacity: 0; transform: translate(-50%, -120%); z-index: 500;
+            position: absolute; background: rgba(30,30,30,0.9); color: white;
+            padding: 5px 10px; border-radius: 4px; font-size: 11px; font-weight: bold;
+            pointer-events: none; opacity: 0; transform: translate(-50%, -100%); margin-top: -15px;
         }
     </style>
+    
     <script type="importmap">
         { "imports": { "three": "https://unpkg.com/three@0.160.0/build/three.module.js", "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/" } }
     </script>
@@ -96,15 +74,15 @@
 <body>
 
 <div id="loader">
-    <div class="loader-text">🦎GECO.srl</div>
-    <div class="loader-sub">CARICAMENTO AMBIENTE...</div>
+    <div class="loader-txt">🦎GECO.srl</div>
+    <div style="font-size:12px; color:#999; margin-top:5px;">CARICAMENTO SISTEMA...</div>
 </div>
 
 <div id="ui-layer">
     <div id="tooltip"></div>
-    
+
     <div id="controls">
-        <div class="pad-grid">
+        <div class="d-pad">
             <button class="pad-btn" onpointerdown="app.move(0,-1)">▲</button>
             <button class="pad-btn" onpointerdown="app.move(-1,0)">◄</button>
             <button class="pad-btn" onpointerdown="app.move(1,0)">►</button>
@@ -119,23 +97,23 @@
 
     <div id="toolbar">
         <div class="panel">
-            <div class="panel-label">File</div>
-            <div class="btn-group">
+            <div class="panel-head">File</div>
+            <div class="btn-row">
                 <button class="btn" onclick="app.save()">💾</button>
                 <button class="btn" onclick="app.load()">📂</button>
                 <button class="btn btn-accent" onclick="app.random()">🎲 Random</button>
             </div>
         </div>
         <div class="panel">
-            <div class="panel-label">Visualizza</div>
-            <div class="btn-group">
+            <div class="panel-head">Strumenti</div>
+            <div class="btn-row">
                 <button class="btn" onclick="app.photo()">📷</button>
-                <button class="btn" id="btn-dims" onclick="app.toggleDims()">📏 Ingombro</button>
+                <button class="btn" id="btn-dim" onclick="app.toggleDims()">📏 Quote: OFF</button>
             </div>
         </div>
         <div class="panel">
-            <div class="panel-label">Moduli Base</div>
-            <div class="btn-group">
+            <div class="panel-head">Moduli</div>
+            <div class="btn-row">
                 <button class="btn" onclick="app.add('base')">Base</button>
                 <button class="btn" onclick="app.add('sink')">Lavello</button>
                 <button class="btn" onclick="app.add('cooktop')">Fuochi</button>
@@ -145,9 +123,9 @@
             </div>
         </div>
         <div class="panel">
-            <div class="panel-label">Extra</div>
-            <div class="btn-group">
-                <button class="btn" onclick="app.add('board_h')">Top/Mensola</button>
+            <div class="panel-head">Extra</div>
+            <div class="btn-row">
+                <button class="btn" onclick="app.add('board_h')">Mensola</button>
                 <button class="btn" onclick="app.add('board_v')">Pannello</button>
                 <button class="btn" onclick="app.add('slatted')">Boiserie</button>
                 <button class="btn" onclick="app.add('led')">LED</button>
@@ -163,35 +141,51 @@ import * as THREE from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { GUI } from 'three/addons/libs/lil-gui.module.min.js';
 
-// --- GESTIONE TEXTURE ---
+// --- CONFIG & STATE ---
+let scene, camera, renderer, controls;
+let cabinets = []; // Array dati
+let meshes = [];   // Array oggetti 3D
+let selection = [];
+let helpers = [];
+let dimGroup = null;
+let raycaster = new THREE.Raycaster();
+let mouse = new THREE.Vector2();
+let isDimMode = false;
+let floor, wall;
+
+const props = {
+    color: 'white', 
+    width: 60, height: 85, depth: 60, elevation: 0,
+    wallColor: 'wall_cream', showEnv: true
+};
+
 const texCache = {};
-function getTexture(type, color) {
-    const key = type + '_' + color;
+
+// --- TEXTURE GENERATOR ---
+function getTexture(type, colorHex) {
+    const key = type + colorHex;
     if(texCache[key]) return texCache[key];
 
-    const cv = document.createElement('canvas'); 
-    cv.width = 256; cv.height = 256;
+    const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256;
     const ctx = cv.getContext('2d');
     
-    // FILL
-    ctx.fillStyle = color; 
-    ctx.fillRect(0,0,256,256);
+    // Sfondo solido
+    ctx.fillStyle = colorHex; ctx.fillRect(0,0,256,256);
     
-    // GRAIN
+    // Effetto
     if(type === 'wood') {
         ctx.globalCompositeOperation = 'multiply';
-        ctx.globalAlpha = 0.05; // Molto leggero per il bianco
+        ctx.globalAlpha = 0.08;
         ctx.beginPath();
-        for(let i=0; i<40; i++) {
+        for(let i=0; i<30; i++) {
             const y = Math.random()*256;
-            ctx.moveTo(0,y); 
-            ctx.bezierCurveTo(80, y+20, 160, y-20, 256, y);
+            ctx.moveTo(0, y); ctx.bezierCurveTo(80, y+20, 160, y-20, 256, y);
         }
         ctx.strokeStyle = '#555'; ctx.stroke();
-    } else if (type === 'stone') {
+    } else { // stone
         ctx.globalAlpha = 0.1;
-        for(let i=0; i<1000; i++) {
-            ctx.fillStyle = Math.random()>.5 ? '#fff' : '#000';
+        for(let i=0; i<500; i++) {
+            ctx.fillStyle = Math.random()>.5?'#fff':'#000';
             ctx.fillRect(Math.random()*256, Math.random()*256, 2, 2);
         }
     }
@@ -200,60 +194,35 @@ function getTexture(type, color) {
     const mat = new THREE.MeshStandardMaterial({ 
         map: tex, 
         roughness: type==='wood'?0.6:0.9, 
-        metalness: type==='wood'?0.05:0 
+        metalness: type==='wood'?0.05:0.1 
     });
-    
     texCache[key] = mat;
     return mat;
 }
 
-// --- MATERIALI ---
 function getMat(name) {
-    const colors = {
-        white: '#ffffff', // BIANCO PURO
-        cream: '#fdf6e3',
-        oak: '#e6ccb2',
-        walnut: '#a68a64',
-        sand: '#ddb892',
-        kick: '#dcdcdc'
-    };
-    
-    if(colors[name]) return getTexture('wood', colors[name]);
-    
-    if(name === 'wall_cream') return new THREE.MeshStandardMaterial({ color: 0xfcfcf7 });
-    if(name === 'wall_taupe') return new THREE.MeshStandardMaterial({ color: 0xd3cbb8 });
-    if(name === 'wall_sage') return new THREE.MeshStandardMaterial({ color: 0xc1cdb9 });
+    const pal = { white:'#ffffff', cream:'#fdf6e3', oak:'#e6ccb2', walnut:'#a68a64', sand:'#ddb892', kick:'#dcdcdc' };
+    if(pal[name]) return getTexture('wood', pal[name]);
     
     if(name === 'glass') return new THREE.MeshPhysicalMaterial({ color:0xaaccff, transmission:0.8, opacity:0.3, transparent:true });
     if(name === 'led') return new THREE.MeshBasicMaterial({ color:0xffffee });
     if(name === 'steel') return new THREE.MeshStandardMaterial({ color:0xcccccc, metalness:0.6, roughness:0.4 });
     if(name === 'black') return new THREE.MeshStandardMaterial({ color:0x222222 });
-    if(name === 'stone') return getTexture('stone', '#e8e4dc');
-
-    return getTexture('wood', '#ffffff');
+    if(name === 'wall_cream') return new THREE.MeshStandardMaterial({ color:0xfcfcf7 });
+    if(name === 'wall_taupe') return new THREE.MeshStandardMaterial({ color:0xd3cbb8 });
+    if(name === 'wall_sage') return new THREE.MeshStandardMaterial({ color:0xc1cdb9 });
+    
+    return getTexture('stone', '#e8e4dc'); // Default top
 }
-
-// --- GLOBALS ---
-let scene, camera, renderer, controls;
-let cabinets = [], selection = [], helpers = [], dimLabels = [];
-let floor, wall, dimGroup;
-let isDimMode = false;
-let raycaster = new THREE.Raycaster();
-let mouse = new THREE.Vector2();
-
-const props = {
-    color: 'white', width: 60, height: 85, depth: 60, elevation: 0,
-    wallColor: 'wall_cream', showEnv: true
-};
 
 // --- INIT ---
 function init() {
     scene = new THREE.Scene();
-    scene.background = new THREE.Color(0xfbf9f5);
-    scene.fog = new THREE.Fog(0xfbf9f5, 300, 1200);
+    scene.background = new THREE.Color(0xfcfbf4);
+    scene.fog = new THREE.Fog(0xfcfbf4, 300, 1200);
 
     const aspect = window.innerWidth / window.innerHeight;
-    const d = window.innerWidth < 768 ? 220 : 160; // ZOOM MOLTO VICINO
+    const d = window.innerWidth < 768 ? 220 : 160;
     camera = new THREE.OrthographicCamera(-d*aspect, d*aspect, d, -d, 1, 4000);
     camera.position.set(300, 300, 300);
     camera.lookAt(0, 50, 0);
@@ -263,25 +232,19 @@ function init() {
     renderer.shadowMap.enabled = true;
     document.body.appendChild(renderer.domElement);
 
-    // LUCI
-    const amb = new THREE.AmbientLight(0xfff0e0, 0.7);
-    scene.add(amb);
+    const amb = new THREE.AmbientLight(0xfff0e0, 0.7); scene.add(amb);
     const sun = new THREE.DirectionalLight(0xffffff, 0.7);
-    sun.position.set(150, 400, 200);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(1024, 1024);
-    scene.add(sun);
+    sun.position.set(150, 400, 200); sun.castShadow = true;
+    sun.shadow.mapSize.set(1024, 1024); scene.add(sun);
 
-    // ENV
+    // Environment
     wall = new THREE.Mesh(new THREE.BoxGeometry(2000, 500, 10), getMat('wall_cream'));
-    wall.position.set(0, 250, -35); wall.receiveShadow = true;
-    scene.add(wall);
+    wall.position.set(0, 250, -35); wall.receiveShadow = true; scene.add(wall);
 
     floor = new THREE.Mesh(new THREE.PlaneGeometry(2000, 1000), getTexture('stone', '#eeeae5'));
     floor.rotation.x = -Math.PI/2; floor.position.set(0, -0.1, 200);
-    floor.receiveShadow = true;
-    scene.add(floor);
-    
+    floor.receiveShadow = true; scene.add(floor);
+
     const grid = new THREE.GridHelper(2000, 50, 0xccaacc, 0xeeddcc);
     grid.position.set(0, 0.1, 200); grid.material.opacity = 0.3; grid.material.transparent = true;
     scene.add(grid);
@@ -290,114 +253,80 @@ function init() {
     scene.add(dimGroup);
 
     controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
-    controls.maxPolarAngle = Math.PI/2;
-    controls.target.set(0, 50, 0);
+    controls.enableDamping = true; controls.maxPolarAngle = Math.PI/2;
 
     setupGUI();
-    setupEvents();
-
-    // START
-    generateRandom();
-    document.getElementById('loader').style.opacity = 0;
-    setTimeout(()=>document.getElementById('loader').remove(), 600);
+    window.addEventListener('resize', onResize);
     
+    // EVENTI CLICK
+    let downPos = new THREE.Vector2();
+    renderer.domElement.addEventListener('pointerdown', e => downPos.set(e.clientX, e.clientY));
+    renderer.domElement.addEventListener('pointerup', e => {
+        if(downPos.distanceTo(new THREE.Vector2(e.clientX,e.clientY)) > 5) return;
+        handleClick(e);
+    });
+
+    // AVVIO
+    generateRandom();
+    
+    setTimeout(() => {
+        document.getElementById('loader').style.opacity = 0;
+        setTimeout(() => document.getElementById('loader').remove(), 500);
+    }, 500);
+
     animate();
 }
 
-function setupEvents() {
-    window.addEventListener('resize', () => {
-        const aspect = window.innerWidth / window.innerHeight;
-        const d = window.innerWidth < 768 ? 220 : 160;
-        camera.left = -d*aspect; camera.right = d*aspect; camera.top = d; camera.bottom = -d;
-        camera.updateProjectionMatrix();
-        renderer.setSize(window.innerWidth, window.innerHeight);
-    });
-
-    let downPos = new THREE.Vector2();
-    renderer.domElement.addEventListener('pointerdown', e => {
-        downPos.set(e.clientX, e.clientY);
-    });
-    renderer.domElement.addEventListener('pointerup', e => {
-        if(downPos.distanceTo(new THREE.Vector2(e.clientX, e.clientY)) > 5) return;
-        handleClick(e);
-    });
+function onResize() {
+    const aspect = window.innerWidth / window.innerHeight;
+    const d = window.innerWidth < 768 ? 220 : 160;
+    camera.left = -d*aspect; camera.right = d*aspect; camera.top = d; camera.bottom = -d;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// --- LOGICA SPAWN ---
-function spawn(type) {
-    // Configurazione dimensioni default
-    let w=60, h=85, d=60, y=0;
-    if(type==='sink' || type==='cooktop') { w=90; }
-    if(type==='tall' || type==='fridge') { h=215; }
-    if(type==='wall') { h=72; d=35; y=145; }
-    if(type==='board_h') { h=4; d=30; }
-    if(type==='board_v') { w=4; }
-    if(type==='slatted') { h=240; d=2; }
-    if(type==='door') { w=90; h=210; d=10; }
-    if(type==='window') { w=120; h=120; d=10; y=100; }
-    if(type==='led') { h=1; d=1; }
+// --- CORE FUNCTIONS ---
+function createCabinet(p, selectIt) {
+    // Aggiungi ai dati
+    cabinets.push(p);
+    
+    // Crea Mesh
+    const mesh = buildMesh(p);
+    mesh.userData = { id: p.id }; // Link mesh -> data
+    scene.add(mesh);
+    meshes.push(mesh);
 
-    // Posizionamento automatico
-    let x=0, z=0, r=0, col=props.color;
-    if(cabinets.length > 0 && !selection.length) {
-        // Se non ho selezionato nulla, metto a destra dell'ultimo
-        const last = cabinets[cabinets.length-1].params;
-        if(!['led','glass'].includes(last.color)) col = last.color;
-        const dist = last.width/2 + w/2;
-        x = last.x + dist; 
-        z = last.z;
-    } else if (selection.length === 1) {
-        // Se ho selezionato un oggetto, provo a mettere a destra di quello
-        const last = selection[0].params;
-        const dist = last.width/2 + w/2;
-        x = last.x + dist; 
-        z = last.z;
-        r = last.rotation;
-    }
-
-    const params = {
-        id: Math.random().toString(36),
-        type, color: col,
-        width: w, height: h, depth: d, elevation: y,
-        rotation: r, x, z, isOpen: false
-    };
-
-    createMesh(params, true);
+    if(selectIt) select([p.id]);
+    else updateDims();
 }
 
-function createMesh(p, selectIt=false) {
+function buildMesh(p) {
     const grp = new THREE.Group();
     grp.position.set(p.x, p.elevation, p.z);
     grp.rotation.y = p.rotation * Math.PI/180;
 
     const mat = getMat(p.color);
-    const bodyH = p.height - (['base','sink','cooktop'].includes(p.type)?14:0); // Sottrai zoccolo+top approssimativo per box
     
-    // BUILDER SEMPLIFICATO MA EFFICACE
-    if(p.type === 'led') {
-        const m = new THREE.Mesh(new THREE.BoxGeometry(p.width,1,1), getMat('led'));
+    if(p.type==='led') {
+        const m=new THREE.Mesh(new THREE.BoxGeometry(p.width,1,1), getMat('led'));
         m.add(new THREE.PointLight(0xffaa00, 0.5, 50)); grp.add(m);
     } 
-    else if(p.type === 'window' || p.type === 'door') {
-        const frame = new THREE.Mesh(new THREE.BoxGeometry(p.width, p.height, p.depth), mat);
-        const glass = new THREE.Mesh(new THREE.BoxGeometry(p.width-10, p.height-10, 2), getMat('glass'));
-        glass.position.z = 0; 
+    else if (p.type==='window'||p.type==='door') {
+        // Cornice
+        const fr = new THREE.Mesh(new THREE.BoxGeometry(p.width, p.height, p.depth), mat);
+        // Vetro
+        const gl = new THREE.Mesh(new THREE.BoxGeometry(p.width-10, p.height-10, p.depth+2), getMat('glass'));
+        // Buco visivo (usiamo colori scuri per simulare profondità se non usiamo CSG)
+        fr.add(gl);
+        grp.add(fr);
         
-        // Buco nel frame (simulato con oggetti separati per semplicità o CSG, qui uso box composti)
-        // Uso versione semplice: Telaio
-        const t = new THREE.Mesh(new THREE.BoxGeometry(p.width, 5, p.depth), mat); t.position.y = p.height/2-2.5;
-        const b = new THREE.Mesh(new THREE.BoxGeometry(p.width, 5, p.depth), mat); b.position.y = -p.height/2+2.5;
-        const l = new THREE.Mesh(new THREE.BoxGeometry(5, p.height, p.depth), mat); l.position.x = -p.width/2+2.5;
-        const r = new THREE.Mesh(new THREE.BoxGeometry(5, p.height, p.depth), mat); r.position.x = p.width/2-2.5;
-        
-        const center = new THREE.Group();
-        center.position.y = p.height/2;
-        center.add(t,b,l,r,glass);
-        grp.add(center);
+        if(p.type==='door') {
+            const h = new THREE.Mesh(new THREE.BoxGeometry(2,10,4), getMat('steel'));
+            h.position.set(p.width/2-10, 0, p.depth/2+2);
+            fr.add(h);
+        }
     }
     else {
-        // CABINET STANDARD
         const toe = (p.type==='wall'||p.type==='fridge'||p.type.startsWith('board')) ? 0 : 10;
         const top = (['base','sink','cooktop'].includes(p.type)) ? 4 : 0;
         const hBox = p.height - toe - top;
@@ -415,35 +344,45 @@ function createMesh(p, selectIt=false) {
             const t = new THREE.Mesh(new THREE.BoxGeometry(p.width, top, p.depth+2), getMat('stone'));
             t.position.set(0, toe+hBox+top/2, 1); t.castShadow = true; grp.add(t);
         }
-        
+
         // ANTE
         if(!p.type.startsWith('board') && p.type !== 'fridge') {
-            const dw = p.width >= 70 ? (p.width/2)-0.2 : p.width-0.4;
+            const isDouble = p.width>=70;
+            const dw = isDouble ? (p.width/2)-0.2 : p.width-0.4;
             const dh = hBox-0.4;
-            const doorGeo = new THREE.BoxGeometry(dw, dh, 2);
             
-            const makeDoor = (offset) => {
-                const d = new THREE.Mesh(doorGeo, mat);
-                const handle = new THREE.Mesh(new THREE.BoxGeometry(1, 15, 1), getMat('steel'));
-                handle.position.set((offset>0?-1:1)*(dw/2-4), 0, 2);
-                d.add(handle);
-                const pivot = new THREE.Group();
-                pivot.position.set(offset, toe+hBox/2, p.depth/2+1);
-                d.position.x = (offset>0?1:-1) * (dw/2);
-                pivot.add(d);
-                if(p.isOpen) pivot.rotation.y = (offset>0?-1:1)*1.5;
-                return pivot;
+            const makeDoor = (x, dir) => {
+                const d = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat);
+                const h = new THREE.Mesh(new THREE.BoxGeometry(1, 15, 1), getMat('steel'));
+                h.position.set(dir*(dw/2-4), 0, 2); d.add(h);
+                
+                const piv = new THREE.Group();
+                piv.position.set(x, toe+hBox/2, p.depth/2+1);
+                d.position.x = -dir*(dw/2); // Offset
+                piv.add(d);
+                if(p.isOpen) piv.rotation.y = dir*1.5;
+                return piv;
             };
 
-            if(p.width>=70) {
-                grp.add(makeDoor(-p.width/4), makeDoor(p.width/4));
+            if(isDouble) {
+                grp.add(makeDoor(-p.width/2, -1)); // SX
+                grp.add(makeDoor(p.width/2, 1));   // DX (cardine a dx) - wait, cardine DX significa offset positivo
+                // Fix double door logic:
+                // SX: x=-width/2, cardine a SX. DX: x=width/2, cardine a DX.
+                // Simplified:
+                const d1 = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat); d1.position.set(-p.width/4, toe+hBox/2, p.depth/2+1);
+                const d2 = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat); d2.position.set(p.width/4, toe+hBox/2, p.depth/2+1);
+                if(p.isOpen) { d1.rotation.y = 1.2; d2.rotation.y = -1.2; } // Simple rotation
+                grp.add(d1, d2);
             } else {
-                const pivot = makeDoor(-p.width/2); // Cardine a sx
-                pivot.children[0].position.x += p.width/2; // Sposta anta
-                if(p.isOpen) pivot.rotation.y = 1.5;
-                // Fix posizione per anta singola
-                pivot.position.x = -p.width/2;
-                grp.add(pivot);
+                // Singola, cardine SX
+                const d = new THREE.Mesh(new THREE.BoxGeometry(dw, dh, 2), mat);
+                const piv = new THREE.Group();
+                piv.position.set(-p.width/2, toe+hBox/2, p.depth/2+1);
+                d.position.x = p.width/2; 
+                piv.add(d);
+                if(p.isOpen) piv.rotation.y = 1.5;
+                grp.add(piv);
             }
         }
         
@@ -456,159 +395,155 @@ function createMesh(p, selectIt=false) {
             c.position.set(0, p.height, 0); grp.add(c);
         }
     }
-
-    grp.userData = { id: p.id };
-    scene.add(grp);
-    cabinets.push({ mesh: grp, params: p });
-    
-    if(selectIt) select([cabinets[cabinets.length-1]]);
-    else updateDims();
+    return grp;
 }
 
-// --- SELEZIONE & INTERAZIONE ---
+// --- GESTIONE ---
+function add(type) {
+    let w=60, h=85, d=60, y=0;
+    if(type==='sink'||type==='cooktop') w=90;
+    if(type==='tall'||type==='fridge') h=215;
+    if(type==='wall') { h=72; d=35; y=145; }
+    if(type==='board_h') { h=4; d=30; }
+    if(type==='board_v') { w=4; }
+    if(type==='slatted') { h=240; d=2; }
+    if(type==='door') { w=90; h=210; d=10; }
+    if(type==='window') { w=120; h=120; d=10; y=100; }
+    if(type==='led') { h=1; d=1; }
+
+    let x=0, z=0, r=0, c=props.color;
+    // Auto posizionamento
+    if(selection.length > 0) {
+        const ref = cabinets.find(cab => cab.id === selection[selection.length-1]);
+        if(ref) {
+            x = ref.x + ref.width/2 + w/2;
+            z = ref.z;
+            r = ref.rotation;
+            if(!['led','glass'].includes(ref.color)) c = ref.color;
+        }
+    } else if (cabinets.length > 0) {
+        const ref = cabinets[cabinets.length-1];
+        x = ref.x + ref.width/2 + w/2;
+        z = ref.z;
+    }
+
+    createCabinet({
+        id: Math.random().toString(36),
+        type, color: c, width:w, height:h, depth:d, elevation:y, rotation:r, x, z, isOpen:false
+    }, true);
+}
+
 function handleClick(e) {
     const rect = renderer.domElement.getBoundingClientRect();
     mouse.x = ((e.clientX - rect.left)/rect.width)*2 -1;
     mouse.y = -((e.clientY - rect.top)/rect.height)*2 +1;
     raycaster.setFromCamera(mouse, camera);
+    const hits = raycaster.intersectObjects(meshes, true);
     
-    const hits = raycaster.intersectObjects(scene.children, true);
-    let target = null;
-    
-    // Cerca il genitore Cabinet
-    for(let h of hits) {
-        let obj = h.object;
-        while(obj) {
-            if(obj.userData && obj.userData.id) { target = obj; break; }
-            obj = obj.parent;
-        }
-        if(target) break;
+    let hitId = null;
+    for(let hit of hits) {
+        let obj = hit.object;
+        while(obj) { if(obj.userData.id) { hitId=obj.userData.id; break; } obj=obj.parent; }
+        if(hitId) break;
     }
 
-    if(target) {
-        const cab = cabinets.find(c => c.params.id === target.userData.id);
+    if(hitId) {
         if(e.shiftKey) {
-            // MULTI SELEZIONE
-            if(selection.includes(cab)) {
-                select(selection.filter(c => c !== cab));
-            } else {
-                select([...selection, cab]);
-            }
+            if(selection.includes(hitId)) select(selection.filter(id=>id!==hitId));
+            else select([...selection, hitId]);
         } else {
-            // SINGOLA
-            select([cab]);
+            select([hitId]);
         }
-    } else if (hits.length===0 || hits[0].object === floor || hits[0].object === wall) {
+    } else if (hits.length === 0) {
         if(!e.shiftKey) select([]);
     }
 }
 
-function select(arr) {
-    // Pulisci helpers vecchi
-    helpers.forEach(h => scene.remove(h));
-    helpers = [];
+function select(ids) {
+    selection = ids;
+    helpers.forEach(h=>scene.remove(h)); helpers=[];
     
-    selection = arr;
-
-    // Disegna box arancioni
-    selection.forEach(c => {
-        const bh = new THREE.BoxHelper(c.mesh, 0xe07a5f);
-        scene.add(bh);
-        helpers.push(bh);
+    selection.forEach(id => {
+        const m = meshes.find(m => m.userData.id === id);
+        if(m) {
+            const box = new THREE.BoxHelper(m, 0xe07a5f);
+            scene.add(box); helpers.push(box);
+        }
     });
 
-    const ui = document.getElementById('controls');
-    if(selection.length > 0) {
-        ui.classList.add('visible');
-        // Sync GUI con l'ultimo
-        const last = selection[selection.length-1].params;
-        props.color = last.color; // Aggiorna var props per GUI
-        props.width = last.width;
-        // Aggiorna GUI display
-        for(let k in gui.controllers) gui.controllers[k].updateDisplay();
+    const panel = document.getElementById('controls');
+    if(selection.length) {
+        panel.classList.add('visible');
+        // Sync GUI
+        const last = cabinets.find(c=>c.id===selection[selection.length-1]);
+        if(last) {
+            props.color = last.color;
+            props.width = last.width;
+            props.height = last.height;
+            props.depth = last.depth;
+            props.elevation = last.elevation;
+            // update gui display manually not strictly needed but good
+        }
     } else {
-        ui.classList.remove('visible');
+        panel.classList.remove('visible');
     }
-
-    updateDims(); // CRUCIALE: Aggiorna etichette 3D
+    updateDims();
     updateTooltip();
 }
 
-function deleteSel() {
-    selection.forEach(c => {
-        scene.remove(c.mesh);
-        cabinets = cabinets.filter(cb => cb !== c);
+function updateProps() {
+    selection.forEach(id => {
+        const idx = cabinets.findIndex(c=>c.id===id);
+        if(idx>=0) {
+            Object.assign(cabinets[idx], props); // merge props
+            // Rebuild
+            const oldMesh = meshes.find(m=>m.userData.id===id);
+            scene.remove(oldMesh);
+            meshes = meshes.filter(m=>m!==oldMesh);
+            
+            const newMesh = buildMesh(cabinets[idx]);
+            newMesh.userData = { id: id };
+            scene.add(newMesh);
+            meshes.push(newMesh);
+        }
     });
-    select([]);
+    select(selection); // Refresh helpers
 }
 
-function generateRandom() {
-    // 1. CLEAR SCENE
-    cabinets.forEach(c => scene.remove(c.mesh));
-    cabinets = [];
-    select([]);
-
-    // 2. BUILD
-    let cx = -120;
-    // Frigo
-    createMesh({id:Math.random(), type:'fridge', color:'white', width:60, height:215, depth:60, elevation:0, x:cx, z:0, rotation:0}); cx+=60;
-    // Base 1
-    createMesh({id:Math.random(), type:'base', color:'white', width:60, height:85, depth:60, elevation:0, x:cx+30, z:0, rotation:0}); 
-    // Pensile 1
-    createMesh({id:Math.random(), type:'wall', color:'white', width:60, height:72, depth:35, elevation:145, x:cx+30, z:-12, rotation:0}); cx+=60;
-    // Lavello
-    createMesh({id:Math.random(), type:'sink', color:'white', width:90, height:85, depth:60, elevation:0, x:cx+45, z:0, rotation:0}); cx+=90;
-    // Fuochi
-    createMesh({id:Math.random(), type:'cooktop', color:'white', width:90, height:85, depth:60, elevation:0, x:cx+45, z:0, rotation:0});
-    // Pensile Cappa
-    createMesh({id:Math.random(), type:'wall', color:'white', width:90, height:72, depth:35, elevation:145, x:cx+45, z:-12, rotation:0});
-    
-    updateDims();
-}
-
-// --- DIMENSIONI & ETICHETTE ---
-function toggleDims() {
-    isDimMode = !isDimMode;
-    document.getElementById('btn-dims').innerText = isDimMode ? "📏 Ingombro: ON" : "📏 Ingombro: OFF";
-    document.getElementById('btn-dims').classList.toggle('active', isDimMode);
-    updateDims();
-}
-
-function createLabel(text) {
+// --- DIMENSIONS ---
+function createLabel(txt) {
     const cv = document.createElement('canvas'); cv.width=128; cv.height=64;
     const ctx = cv.getContext('2d');
-    ctx.fillStyle = 'rgba(255,255,255,0.8)';
-    ctx.roundRect(0,0,128,64,10); ctx.fill();
+    ctx.fillStyle = 'rgba(255,255,255,0.85)';
+    ctx.beginPath(); ctx.roundRect(0,0,128,64,12); ctx.fill();
     ctx.strokeStyle = '#c58f68'; ctx.lineWidth=4; ctx.stroke();
-    ctx.fillStyle = '#000'; ctx.font='bold 30px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
-    ctx.fillText(text, 64, 32);
-    
-    const tex = new THREE.CanvasTexture(cv);
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, depthTest:false, depthWrite:false }));
-    sp.scale.set(30, 15, 1);
-    sp.renderOrder = 999;
-    return sp;
+    ctx.fillStyle='#000'; ctx.font='bold 28px Arial'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText(txt, 64, 32);
+    const s = new THREE.Sprite(new THREE.SpriteMaterial({map:new THREE.CanvasTexture(cv), depthTest:false}));
+    s.scale.set(30,15,1); s.renderOrder=999;
+    return s;
 }
 
 function updateDims() {
-    // Pulisci vecchie labels
-    dimGroup.clear(); // Three.js clear method
-
-    const lineMat = new THREE.LineBasicMaterial({ color: 0xc58f68, depthTest:false, opacity:0.5, transparent:true });
+    dimGroup.clear();
+    if(selection.length === 0 && !isDimMode) return;
 
     cabinets.forEach(c => {
-        // MOSTRA SE: Mode è ON  --OPPURE--  Oggetto è Selezionato
-        if(isDimMode || selection.includes(c)) {
-            const bh = new THREE.BoxHelper(c.mesh);
-            bh.material = lineMat;
-            dimGroup.add(bh);
-
-            const p = c.params;
-            const wL = createLabel(p.width); wL.position.copy(c.mesh.position); wL.position.y += p.height/2 + 10;
-            const hL = createLabel(p.height); hL.position.copy(c.mesh.position); hL.position.x -= p.width/2 + 10;
-            const dL = createLabel(p.depth); dL.position.copy(c.mesh.position); dL.position.x += p.width/2 + 10;
+        // Mostra se Mode=ON oppure se fa parte della Selezione
+        if(isDimMode || selection.includes(c.id)) {
+            const m = meshes.find(x=>x.userData.id===c.id);
+            if(!m) return;
             
-            dimGroup.add(wL, hL, dL);
+            // Box
+            const b = new THREE.BoxHelper(m, 0xc58f68);
+            b.material.opacity=0.4; b.material.transparent=true; b.material.depthTest=false;
+            dimGroup.add(b);
+
+            // Labels
+            const w = createLabel(c.width); w.position.copy(m.position); w.position.y += c.height/2+15;
+            const h = createLabel(c.height); h.position.copy(m.position); h.position.x -= c.width/2+15;
+            const d = createLabel(c.depth); d.position.copy(m.position); d.position.x += c.width/2+15;
+            dimGroup.add(w,h,d);
         }
     });
 }
@@ -616,91 +551,103 @@ function updateDims() {
 function updateTooltip() {
     const tt = document.getElementById('tooltip');
     if(selection.length === 1) {
-        const p = selection[0].params;
-        const v = new THREE.Vector3(p.x, p.elevation+p.height, p.z);
-        v.project(camera);
-        const x = (v.x * .5 + .5) * window.innerWidth;
-        const y = (-(v.y * .5 - .5) * window.innerHeight);
+        const c = cabinets.find(x=>x.id===selection[0]);
+        const v = new THREE.Vector3(c.x, c.elevation+c.height, c.z).project(camera);
+        const x = (v.x*.5+.5)*window.innerWidth;
+        const y = (-(v.y*.5-.5)*window.innerHeight);
         tt.style.left = x+'px'; tt.style.top = (y-30)+'px';
-        tt.innerHTML = `<b>${p.type}</b><br>${p.width}x${p.height}x${p.depth}`;
+        tt.innerHTML = `${c.width} x ${c.height} x ${c.depth}`;
         tt.style.opacity = 1;
-    } else {
-        tt.style.opacity = 0;
-    }
+    } else tt.style.opacity=0;
 }
 
-// --- UTILS GUI ---
-function setupGUI() {
-    const gui = new GUI({ width: 260 });
-    gui.close();
-    
-    const updateSel = () => {
-        selection.forEach(c => {
-            Object.assign(c.params, props);
-            scene.remove(c.mesh);
-            createMesh(c.params, false); // ricrea mesh
-            // riassegna reference
-            c.mesh = cabinets[cabinets.length-1].mesh;
-            cabinets.pop(); // togli l'ultimo aggiunto da createMesh (che lo pusha) per non duplicare
-        });
-        select(selection); // ripristina box selezione
+// --- UTILS ---
+function generateRandom() {
+    cabinets = []; meshes.forEach(m=>scene.remove(m)); meshes=[]; select([]);
+    let cx = -120;
+    // Helper to add without selection
+    const addR = (t,w,h,d,e,x,z) => {
+        const p = {id:Math.random().toString(36), type:t, color:'white', width:w, height:h, depth:d, elevation:e, x, z, rotation:0, isOpen:false};
+        createCabinet(p, false);
     };
-
-    const f = gui.addFolder('Parametri');
-    f.add(props, 'color', ['white','cream','oak','walnut','sand']).name('Finitura').onChange(updateSel);
-    f.add(props, 'width', 10, 300).name('Larghezza').onChange(updateSel);
-    f.add(props, 'height', 10, 300).name('Altezza').onChange(updateSel);
-    f.add(props, 'depth', 10, 200).name('Profondità').onChange(updateSel);
-    f.add(props, 'elevation', 0, 300).name('Elevazione').onChange(updateSel);
+    addR('fridge', 60, 215, 60, 0, cx, 0); cx+=60;
+    addR('base', 60, 85, 60, 0, cx+30, 0); 
+    addR('wall', 60, 72, 35, 145, cx+30, -12); cx+=60;
+    addR('sink', 90, 85, 60, 0, cx+45, 0); cx+=90;
+    addR('cooktop', 90, 85, 60, 0, cx+45, 0); 
+    addR('wall', 90, 72, 35, 145, cx+45, -12);
+    
+    updateDims();
 }
 
-// API
+function setupGUI() {
+    const gui = new GUI({ width: 260 }); gui.close();
+    const f = gui.addFolder('Modifica');
+    f.add(props, 'color', ['white','cream','oak','walnut','sand']).onChange(updateProps);
+    f.add(props, 'width', 10, 300).onChange(updateProps);
+    f.add(props, 'height', 10, 300).onChange(updateProps);
+    f.add(props, 'depth', 10, 200).onChange(updateProps);
+    f.add(props, 'elevation', 0, 300).onChange(updateProps);
+    f.add(props, 'wallColor', ['wall_cream','wall_taupe','wall_sage']).onChange(v => wall.material=getMat(v));
+}
+
+// --- EXPORT API ---
 window.app = {
     add: spawn,
     save: () => {
-        const data = JSON.stringify(cabinets.map(c=>c.params));
-        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([data],{type:'json'}));
-        a.download = 'progetto.json'; a.click();
+        const b = new Blob([JSON.stringify(cabinets)], {type:'json'});
+        const a = document.createElement('a'); a.href=URL.createObjectURL(b); a.download='geco_project.json'; a.click();
     },
     load: () => {
         const i = document.createElement('input'); i.type='file';
-        i.onchange = e => {
-            const r = new FileReader();
-            r.onload = v => {
-                cabinets.forEach(c=>scene.remove(c.mesh)); cabinets=[]; select([]);
-                JSON.parse(v.target.result).forEach(p => createMesh(p));
-                updateDims();
-            };
-            r.readAsText(e.target.files[0]);
-        };
-        i.click();
+        i.onchange=e=>{
+            const r=new FileReader(); r.onload=v=>{
+                cabinets=[]; meshes.forEach(m=>scene.remove(m)); meshes=[]; select([]);
+                JSON.parse(v.target.result).forEach(p=>createCabinet(p,false));
+            }; r.readAsText(e.target.files[0]);
+        }; i.click();
     },
     random: generateRandom,
-    photo: () => {
-        renderer.render(scene, camera);
-        const a = document.createElement('a'); a.href=renderer.domElement.toDataURL(); a.download='foto.png'; a.click();
+    photo: () => { renderer.render(scene, camera); const a=document.createElement('a'); a.href=renderer.domElement.toDataURL(); a.download='render.png'; a.click(); },
+    toggleDims: () => { 
+        isDimMode=!isDimMode; 
+        document.getElementById('btn-dim').innerText = isDimMode ? "📏 Quote: ON" : "📏 Quote: OFF";
+        document.getElementById('btn-dim').classList.toggle('active', isDimMode);
+        updateDims(); 
     },
-    toggleDims: toggleDims,
+    move: (x,z) => {
+        selection.forEach(id => {
+            const c = cabinets.find(x=>x.id===id);
+            c.x += x*2; c.z += z*2;
+            const m = meshes.find(x=>x.userData.id===id);
+            m.position.set(c.x, c.elevation, c.z);
+        });
+        select(selection); // Refresh helpers
+    },
     rotate: () => {
-        selection.forEach(c => { c.params.rotation = (c.params.rotation+90)%360; c.mesh.rotation.y = c.params.rotation*Math.PI/180; });
-        select(selection);
-    },
-    door: () => {
-        selection.forEach(c => { c.params.isOpen=!c.params.isOpen; 
-            scene.remove(c.mesh); createMesh(c.params, false); 
-            c.mesh = cabinets.pop().mesh; // trick per sostituire reference
+        selection.forEach(id => {
+            const c = cabinets.find(x=>x.id===id);
+            c.rotation = (c.rotation+90)%360;
+            const m = meshes.find(x=>x.userData.id===id);
+            m.rotation.y = c.rotation * Math.PI/180;
         });
         select(selection);
     },
-    del: deleteSel,
-    move: (x,z) => {
-        selection.forEach(c => { c.params.x+=x*2; c.params.z+=z*2; c.mesh.position.set(c.params.x, c.params.elevation, c.params.z); });
-        select(selection);
-    }
+    door: () => {
+        selection.forEach(id => {
+            const c = cabinets.find(x=>x.id===id);
+            c.isOpen = !c.isOpen;
+        });
+        updateProps(); // Rebuild
+    },
+    del: deleteSel
 };
 
-function animate() { requestAnimationFrame(animate); controls.update(); renderer.render(scene, camera); }
-
+function animate() {
+    requestAnimationFrame(animate);
+    controls.update();
+    renderer.render(scene, camera);
+}
 }
 init();
 </script>
